@@ -24,6 +24,15 @@ Backend нет — по замыслу этапа 1.
 5. **Форма заявки** — frontend-only, локальный success-state. Точка
    расширения помечена комментарием в `lead-form.tsx`.
 
+## Деплой
+
+Автодеплой по push в `main`: `.github/workflows/deploy.yml` подключается по SSH
+к production-серверу (KZ, secrets `SERVER_HOST`/`SERVER_USER`/`SERVER_SSH_KEY`),
+обновляет код (`git reset --hard origin/main`), пересобирает (`pnpm install
+--frozen-lockfile` + `pnpm build`) и перезапускает `driveset.service`, затем
+проверяет `systemctl is-active` и `curl http://127.0.0.1:3230`. Актуальные
+production-факты (сервер, путь, порт) — в `OLNOO_PROJECT_MAP.md`, не здесь.
+
 ## SEO groundwork
 
 - Один `<h1>` (Hero). Иерархия `<h2>/<h3>` по секциям.

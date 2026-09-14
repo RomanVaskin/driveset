@@ -45,3 +45,21 @@ CTA «Записаться» везде ведёт на `#lead`.
 | Файл | Назначение |
 | --- | --- |
 | `next.config.mjs` | Images unoptimized + security headers. |
+
+## Деплой (production, KZ)
+
+| Факт | Значение |
+| --- | --- |
+| Домен | `driveset.ru` |
+| Сервер | `213.155.29.140` |
+| Путь на сервере | `/opt/olnoo/projects/driveset` |
+| systemd-сервис | `driveset.service` |
+| Порт | `3230` |
+| Ветка деплоя | `main` |
+| Package manager | `pnpm` (via `corepack enable`) |
+| Workflow | `.github/workflows/deploy.yml`, триггер — push в `main` |
+| GitHub Secrets | `SERVER_HOST`, `SERVER_USER`, `SERVER_SSH_KEY` |
+
+Деплой: `git fetch` + `git reset --hard origin/main` → `pnpm install --frozen-lockfile`
+→ `pnpm build` → `systemctl restart driveset.service` → проверка `is-active` и
+`curl http://127.0.0.1:3230`.

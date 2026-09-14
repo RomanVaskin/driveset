@@ -1,0 +1,39 @@
+name: Deploy DriveSet
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-driveset
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production (KZ)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+
+            cd /opt/olnoo/projects/driveset
+
+            git fetch origin main
+            git reset --hard origin/main
+
+            corepack enable
+            pnpm install --frozen-lockfile
+            pnpm build
+
+            systemctl restart driveset.service
+            systemctl is-active --quiet driveset.service
+
+            sleep 3
+            curl -f http://127.0.0.1:3230
