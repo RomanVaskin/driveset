@@ -19,7 +19,7 @@ Production-карта файлов. Обновлять при любом изм�
 | --- | --- | --- | --- |
 | `header.tsx` | Хедер, sticky, burger-меню | client | — |
 | `hero.tsx` | Hero c фото, `<h1>`, CTA | server | `#top` |
-| `services.tsx` | 3 карточки услуг | server | `#services` |
+| `services.tsx` | 3 карточки услуг, у каждой цена «от …» | server | `#services` |
 | `why-us.tsx` | «Почему DriveSet», 4 преимущества | server | `#about` |
 | `process.tsx` | Процесс из 5 шагов | server | — |
 | `gallery.tsx` | Галерея работ | server | `#gallery` |

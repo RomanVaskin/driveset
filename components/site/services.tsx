@@ -28,7 +28,12 @@ export function Services() {
               />
             </div>
             <div className="flex flex-1 flex-col p-6">
-              <h3 className="font-display text-xl font-bold tracking-tight">{service.title}</h3>
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-display text-xl font-bold tracking-tight">{service.title}</h3>
+                <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold whitespace-nowrap text-primary">
+                  {service.price}
+                </span>
+              </div>
               <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
                 {service.description}
               </p>

@@ -37,6 +37,7 @@ export type Service = {
   description: string
   image: string
   imageAlt: string
+  price: string
 }
 
 export const services: Service[] = [
@@ -47,6 +48,7 @@ export const services: Service[] = [
       'Глубокая очистка салона, удаление загрязнений, пятен и запахов.',
     image: '/images/service-cleaning.png',
     imageAlt: 'Профессиональная химчистка салона автомобиля в детейлинг-центре DriveSet',
+    price: 'от 5 000 ₽',
   },
   {
     id: 'polishing',
@@ -55,6 +57,7 @@ export const services: Service[] = [
       'Восстановление блеска кузова и устранение мелких царапин и дефектов ЛКП.',
     image: '/images/service-polishing.png',
     imageAlt: 'Процесс профессиональной полировки кузова автомобиля в DriveSet',
+    price: 'от 10 000 ₽',
   },
   {
     id: 'wrapping',
@@ -63,6 +66,7 @@ export const services: Service[] = [
       'Защитная и декоративная оклейка автомобиля качественными автомобильными плёнками.',
     image: '/images/service-wrapping.png',
     imageAlt: 'Процесс оклейки кузова автомобиля защитной PPF-плёнкой в DriveSet',
+    price: 'от 9 000 ₽',
   },
 ]
 
