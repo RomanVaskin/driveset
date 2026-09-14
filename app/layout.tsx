@@ -1,0 +1,66 @@
+import { Analytics } from '@vercel/analytics/next'
+import type { Metadata, Viewport } from 'next'
+import { Manrope, Inter } from 'next/font/google'
+import { site } from '@/lib/site-config'
+import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const manrope = Manrope({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-manrope',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
+  title: {
+    default: 'DriveSet — детейлинг, полировка и оклейка автомобиля в Москве',
+    template: '%s — DriveSet',
+  },
+  description: site.description,
+  generator: 'v0.app',
+  keywords: [
+    'детейлинг',
+    'химчистка автомобиля',
+    'полировка кузова',
+    'оклейка автомобиля',
+    'PPF плёнка',
+    'детейлинг Москва',
+    'DriveSet',
+  ],
+  openGraph: {
+    type: 'website',
+    locale: 'ru_RU',
+    url: site.url,
+    siteName: site.name,
+    title: 'DriveSet — детейлинг, полировка и оклейка автомобиля в Москве',
+    description: site.description,
+    images: [{ url: '/images/hero-detailing.png', width: 1200, height: 630, alt: 'DriveSet — детейлинг-центр в Москве' }],
+  },
+  alternates: { canonical: site.url },
+}
+
+export const viewport: Viewport = {
+  colorScheme: 'dark',
+  themeColor: '#242428',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="ru" className={`${inter.variable} ${manrope.variable} bg-background`}>
+      <body className="font-sans antialiased">
+        {children}
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+      </body>
+    </html>
+  )
+}
