@@ -18,7 +18,7 @@ Production-карта файлов. Обновлять при любом изм�
 | Компонент | Секция | Тип | Якорь |
 | --- | --- | --- | --- |
 | `header.tsx` | Хедер, sticky, burger-меню | client | — |
-| `hero.tsx` | Hero c фото, `<h1>`, CTA | server | `#top` |
+| `hero.tsx` | Hero: фоновое видео (внешний URL) + фото-poster, оверлей, `<h1>`, CTA | server | `#top` |
 | `services.tsx` | 3 карточки услуг, у каждой цена «от …» | server | `#services` |
 | `why-us.tsx` | «Почему DriveSet», 4 преимущества | server | `#about` |
 | `process.tsx` | Процесс из 5 шагов | server | — |
@@ -49,9 +49,16 @@ robots.txt в проекте отсутствуют). Лендинговые к�
 
 ## Изображения (`public/images/`)
 
-`hero-detailing.png`, `service-cleaning.png`, `service-polishing.png`,
+`hero-detailing.png` (также poster/fallback hero-видео), `service-cleaning.png`, `service-polishing.png`,
 `service-wrapping.png`, `work-1..4.png`. Все сгенерированы, alt заданы в
 `lib/site-config.ts` и компонентах.
+
+## Медиа вне репозитория
+
+Hero-видео `https://driveset.ru/media/hero-optimized.mp4` отдаёт nginx на production
+(файл лежит на сервере, **в git его нет**, `public/media/` не создаём). URL
+захардкожен константой `heroVideoSrc` в `components/site/hero.tsx`. Если файла
+нет или он не грузится — виден poster `/images/hero-detailing.png`.
 
 ## Навигация / якоря
 

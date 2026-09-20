@@ -33,6 +33,15 @@ Backend нет — по замыслу этапа 1.
    нечего; `Disallow` в robots.txt намеренно не добавляем — он мешает краулеру
    увидеть `noindex`. Страница описывает будущие функции, но не реализует их.
 
+7. **Hero-видео.** Фон hero — обычный `<video autoPlay muted loop playsInline>`
+   (без JS, hero остаётся server-компонентом) с внешним URL
+   `https://driveset.ru/media/hero-optimized.mp4`; MP4 в репозиторий не кладём. Под видео
+   лежит `next/image` с `hero-detailing.png` (он же `poster`): виден, пока видео
+   грузится, если autoplay заблокирован или файл недоступен. При
+   `prefers-reduced-motion: reduce` видео скрывается CSS (`motion-reduce:hidden`),
+   остаётся статичное фото. Читаемость текста держит тёмный оверлей в `hero.tsx`;
+   при смене ролика проверять контраст заново.
+
 ## Деплой
 
 Автодеплой по push в `main`: `.github/workflows/deploy.yml` подключается по SSH

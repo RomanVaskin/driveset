@@ -2,20 +2,36 @@ import Image from 'next/image'
 import { MapPin } from 'lucide-react'
 import { site } from '@/lib/site-config'
 
+// Видео лежит на production вне репозитория (MP4 в git не храним).
+const heroVideoSrc = 'https://driveset.ru/media/hero-optimized.mp4'
+const heroPoster = '/images/hero-detailing.png'
+
 export function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/images/hero-detailing.png"
+          src={heroPoster}
           alt="Премиальный автомобиль в чистом детейлинг-пространстве DriveSet"
           fill
           priority
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
+        <video
+          className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden"
+          src={heroVideoSrc}
+          poster={heroPoster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+        <div className="absolute inset-0 bg-background/55" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-background/40 md:via-background/50 md:to-background/10" />
       </div>
 
       <div className="mx-auto flex min-h-[88svh] max-w-6xl flex-col justify-center px-5 py-24 md:min-h-[92svh] md:py-32 lg:px-8">
