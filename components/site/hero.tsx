@@ -2,6 +2,9 @@ import Image from 'next/image'
 import { MapPin } from 'lucide-react'
 import { site } from '@/lib/site-config'
 
+const heroVideoSrc = 'https://driveset.ru/media/hero-optimized.mp4'
+const heroPoster = '/images/hero-detailing.png'
+
 export function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden">
@@ -14,8 +17,19 @@ export function Hero() {
           sizes="100vw"
           className="object-cover"
         />
-        {/* Тёмный кинематографичный оверлей поверх фото — hero остаётся премиальным,
-            при этом мягко растворяется в светлой странице внизу. */}
+        <video
+          className="absolute inset-0 hidden h-full w-full object-cover md:motion-safe:block"
+          src={heroVideoSrc}
+          poster={heroPoster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+
+        {/* Тёмный кинематографичный оверлей поверх hero */}
         <div className="absolute inset-0 bg-[oklch(0.16_0.006_264/0.45)]" />
         <div className="absolute inset-0 bg-gradient-to-r from-[oklch(0.13_0.006_264/0.85)] via-[oklch(0.13_0.006_264/0.45)] to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-b from-[oklch(0.13_0.006_264/0.35)] via-transparent to-background" />

@@ -37,9 +37,11 @@ Backend нет — по замыслу этапа 1.
    (без JS, hero остаётся server-компонентом) с внешним URL
    `https://driveset.ru/media/hero-optimized.mp4`; MP4 в репозиторий не кладём. Под видео
    лежит `next/image` с `hero-detailing.png` (он же `poster`): виден, пока видео
-   грузится, если autoplay заблокирован или файл недоступен. При
-   `prefers-reduced-motion: reduce` видео скрывается CSS (`motion-reduce:hidden`),
-   остаётся статичное фото. Читаемость текста держит тёмный оверлей в `hero.tsx`;
+   грузится, если autoplay заблокирован или файл недоступен. Видео показывается
+   только на `md+` и без `prefers-reduced-motion: reduce` (CSS
+   `hidden md:motion-safe:block`); на mobile (< md) и при reduced-motion остаётся
+   статичное фото. `object-contain` на mobile пробовали и отвергли: 16:9-ролик в
+   высоком портретном hero превращается в узкую полосу. Читаемость текста держит тёмный оверлей в `hero.tsx`;
    при смене ролика проверять контраст заново.
 
 ## Деплой
