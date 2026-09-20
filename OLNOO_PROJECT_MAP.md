@@ -29,6 +29,24 @@ Production-карта файлов. Обновлять при любом изм�
 | `lead-form.tsx` | Форма заявки (frontend-only) | client | `#lead` |
 | `footer.tsx` | Подвал | server | — |
 
+## Внутренняя страница `/plan`
+
+Стратегия развития (продвижение → автоматизация → AI → этапы → KPI).
+`noindex, nofollow`, canonical `/plan`, в sitemap не входит (sitemap.xml и
+robots.txt в проекте отсутствуют). Лендинговые компоненты не затронуты.
+
+| Файл | Роль |
+| --- | --- |
+| `app/plan/page.tsx` | Сборка страницы + `metadata` (robots noindex, canonical, OG). |
+| `lib/plan-config.ts` | Весь контент `/plan`. Цены — из `services`, контакты — из `site` (placeholders). |
+| `components/plan/header.tsx`, `footer.tsx` | Свои хедер/футер: лендинговый `site/header.tsx` ведёт на якоря главной, на `/plan` их нет. |
+| `components/plan/plan-section.tsx` | `PlanSection` (отступы/eyebrow/h2 как на лендинге), `IconBadge`, `GroupLabel`. |
+| `components/plan/flow-chain.tsx` | Цепочка шагов со стрелками (вертикальная на мобильных, горизонтальная на lg+). |
+| `components/plan/hero.tsx`, `promotion.tsx`, `automation.tsx`, `car-card.tsx`, `ai.tsx`, `roadmap.tsx`, `kpi.tsx`, `final-chain.tsx` | Секции по порядку на странице. Якоря: `#promotion`, `#automation`, `#car`, `#ai`, `#roadmap`, `#kpi`, `#system`. |
+
+Все компоненты `/plan` — server, client-JS нет. Новых изображений нет: используются
+существующие из `public/images/`.
+
 ## Изображения (`public/images/`)
 
 `hero-detailing.png`, `service-cleaning.png`, `service-polishing.png`,
