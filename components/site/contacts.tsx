@@ -16,7 +16,7 @@ export function Contacts() {
     <section id="contacts" className="scroll-mt-20 border-t border-border">
       <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Контакты</p>
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">Контакты</p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-4xl lg:text-5xl">
             {site.name} в Москве
           </h2>
@@ -25,10 +25,10 @@ export function Contacts() {
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <div className="flex flex-col gap-8">
             <address className="not-italic">
-              <dl className="divide-y divide-border rounded-xl border border-border bg-card">
+              <dl className="divide-y divide-border rounded-xl border border-border bg-card shadow-soft">
                 {contactRows.map((row) => (
                   <div key={row.label} className="flex items-start gap-4 p-5">
-                    <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">
+                    <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-secondary text-champagne">
                       <row.icon className="h-4.5 w-4.5" />
                     </span>
                     <div>

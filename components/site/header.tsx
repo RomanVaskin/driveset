@@ -22,18 +22,24 @@ export function Header() {
     }
   }, [open])
 
+  // Наверху шапка прозрачная поверх тёмного hero — светлый текст.
+  // После скролла — светлая стеклянная подложка поверх светлой страницы — графитовый текст.
+  const solid = scrolled || open
+
   return (
     <header
       className={`sticky top-0 z-50 w-full border-b transition-colors duration-300 ${
-        scrolled
-          ? 'border-border/80 bg-background/85 backdrop-blur-xl'
-          : 'border-transparent bg-background/40 backdrop-blur-sm'
+        solid
+          ? 'border-border bg-background/85 backdrop-blur-xl shadow-soft'
+          : 'border-transparent bg-transparent'
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 md:h-20 lg:px-8">
         <a
           href="#top"
-          className="font-display text-lg font-extrabold tracking-tight md:text-xl"
+          className={`font-display text-lg font-extrabold tracking-tight transition-colors md:text-xl ${
+            solid ? 'text-foreground' : 'text-white'
+          }`}
           aria-label={`${site.name} — на главную`}
         >
           {site.name}
@@ -44,7 +50,11 @@ export function Header() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className={`text-sm transition-colors ${
+                solid
+                  ? 'text-muted-foreground hover:text-foreground'
+                  : 'text-white/80 hover:text-white'
+              }`}
             >
               {link.label}
             </a>
@@ -54,14 +64,22 @@ export function Header() {
         <div className="flex items-center gap-2">
           <a
             href="#lead"
-            className="hidden rounded-md bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 md:inline-flex"
+            className={`hidden rounded-md px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90 md:inline-flex ${
+              solid
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-white text-[oklch(0.2_0.01_264)]'
+            }`}
           >
             Записаться
           </a>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground md:hidden"
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-md border transition-colors md:hidden ${
+              solid
+                ? 'border-border text-foreground'
+                : 'border-white/30 text-white'
+            }`}
             aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={open}
           >

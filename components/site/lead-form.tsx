@@ -19,7 +19,7 @@ export function LeadForm() {
 
   if (submitted) {
     return (
-      <div className="flex flex-col items-start gap-4 rounded-xl border border-primary/40 bg-card p-8">
+      <div className="flex flex-col items-start gap-4 rounded-xl border border-champagne/40 bg-card p-8 shadow-soft">
         <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <Check className="h-5 w-5" />
         </span>
@@ -32,7 +32,7 @@ export function LeadForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-6 md:p-8">
+    <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-card p-6 shadow-soft md:p-8">
       <div className="grid gap-5">
         <div className="grid gap-2">
           <label htmlFor="name" className="text-sm font-medium">

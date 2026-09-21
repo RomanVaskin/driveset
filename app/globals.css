@@ -24,6 +24,12 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  /* Тёплый champagne-акцент, читаемый как текст на светлом фоне */
+  --color-champagne: var(--champagne);
+
+  /* Тёмный графитовый тон для «драматичных» элементов (hero-оверлеи) */
+  --color-graphite: var(--graphite);
+
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
@@ -36,38 +42,45 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Premium graphite base with a single calm champagne accent */
-  --background: oklch(0.17 0.006 264);
-  --foreground: oklch(0.96 0.004 260);
+  /* Light luxury: тёплый off-white фон, графитовая типографика, один спокойный champagne-акцент */
+  --background: oklch(0.977 0.002 250);
+  --foreground: oklch(0.22 0.006 264);
 
-  --card: oklch(0.21 0.007 264);
-  --card-foreground: oklch(0.96 0.004 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.006 264);
 
-  --popover: oklch(0.19 0.007 264);
-  --popover-foreground: oklch(0.96 0.004 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.006 264);
 
-  /* Champagne / warm platinum accent */
-  --primary: oklch(0.82 0.062 78);
-  --primary-foreground: oklch(0.2 0.01 264);
+  /* Основные CTA — глубокий графит с off-white текстом (элегантно на светлом) */
+  --primary: oklch(0.24 0.006 264);
+  --primary-foreground: oklch(0.98 0.002 250);
 
-  --secondary: oklch(0.26 0.007 264);
-  --secondary-foreground: oklch(0.96 0.004 260);
+  --secondary: oklch(0.945 0.003 260);
+  --secondary-foreground: oklch(0.24 0.006 264);
 
-  --muted: oklch(0.24 0.006 264);
-  --muted-foreground: oklch(0.68 0.006 264);
+  --muted: oklch(0.955 0.003 260);
+  --muted-foreground: oklch(0.5 0.006 264);
 
-  --accent: oklch(0.82 0.062 78);
-  --accent-foreground: oklch(0.2 0.01 264);
+  /* Champagne как деликатный металлический акцент */
+  --accent: oklch(0.72 0.055 72);
+  --accent-foreground: oklch(0.24 0.006 264);
 
   --destructive: oklch(0.55 0.14 25);
 
-  --border: oklch(0.3 0.007 264);
-  --input: oklch(0.3 0.007 264);
-  --ring: oklch(0.82 0.062 78);
+  --border: oklch(0.9 0.003 260);
+  --input: oklch(0.9 0.003 260);
+  --ring: oklch(0.24 0.006 264);
 
-  --radius: 0.5rem;
+  /* Насыщенный бронзово-champagne тон для читаемого акцентного текста */
+  --champagne: oklch(0.56 0.058 66);
+
+  /* Графит для hero-оверлеев и контрастных панелей */
+  --graphite: oklch(0.16 0.006 264);
+
+  --radius: 0.625rem;
 }
 
 @layer base {
@@ -81,5 +94,19 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  /* Мягкие премиальные тени вместо жёстких дефолтных */
+  .shadow-soft {
+    box-shadow:
+      0 1px 2px oklch(0.2 0.02 264 / 0.04),
+      0 8px 24px -14px oklch(0.2 0.02 264 / 0.12);
+  }
+  .shadow-card {
+    box-shadow:
+      0 1px 2px oklch(0.2 0.02 264 / 0.05),
+      0 18px 40px -20px oklch(0.2 0.02 264 / 0.18);
   }
 }

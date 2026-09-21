@@ -6,7 +6,7 @@ import { yandexMapSrc, site } from '@/lib/site-config'
  */
 export function YandexMap() {
   return (
-    <div className="h-[320px] w-full overflow-hidden rounded-xl border border-border md:h-full md:min-h-[420px]">
+    <div className="h-[320px] w-full overflow-hidden rounded-xl border border-border shadow-soft md:h-full md:min-h-[420px]">
       <iframe
         src={yandexMapSrc}
         title={`Карта: ${site.address}`}
