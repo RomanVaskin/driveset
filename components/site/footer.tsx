@@ -2,7 +2,7 @@ import { site } from '@/lib/site-config'
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card/40">
+    <footer className="section-dark border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 md:flex-row md:items-start md:justify-between lg:px-8">
         <div>
           <p className="font-display text-lg font-extrabold tracking-tight">{site.name}</p>
