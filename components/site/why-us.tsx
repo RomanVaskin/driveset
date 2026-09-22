@@ -2,7 +2,7 @@ import { advantages, site } from '@/lib/site-config'
 
 export function WhyUs() {
   return (
-    <section id="about" className="scroll-mt-20 border-y border-border bg-card/40">
+    <section id="about" className="section-dark scroll-mt-20 border-y border-border">
       <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">
@@ -15,7 +15,7 @@ export function WhyUs() {
 
         <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
           {advantages.map((item, i) => (
-            <div key={item.title} className="flex flex-col gap-4 bg-background p-7">
+            <div key={item.title} className="flex flex-col gap-4 bg-card p-7">
               <span className="font-display text-sm font-semibold text-champagne">
                 {String(i + 1).padStart(2, '0')}
               </span>

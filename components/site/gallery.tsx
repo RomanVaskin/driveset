@@ -3,7 +3,7 @@ import { galleryItems } from '@/lib/site-config'
 
 export function Gallery() {
   return (
-    <section id="gallery" className="scroll-mt-20 border-t border-border bg-card/40">
+    <section id="gallery" className="section-dark scroll-mt-20 border-t border-border">
       <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-8">
         <div className="max-w-2xl">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">Работы</p>

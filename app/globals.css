@@ -44,25 +44,27 @@
 :root {
   color-scheme: light;
 
-  /* Light luxury: тёплый off-white фон, графитовая типографика, один спокойный champagne-акцент */
-  --background: oklch(0.977 0.002 250);
-  --foreground: oklch(0.22 0.006 264);
+  /* Light luxury: тёплый light-grey off-white фон (не чистый белый), графит, champagne-акцент */
+  --background: oklch(0.955 0.0035 95);
+  --foreground: oklch(0.2 0.006 264);
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.006 264);
+  /* Карточки — тёплый near-white, слегка светлее фона, но не #fff */
+  --card: oklch(0.99 0.0025 95);
+  --card-foreground: oklch(0.2 0.006 264);
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.006 264);
+  --popover: oklch(0.99 0.0025 95);
+  --popover-foreground: oklch(0.2 0.006 264);
 
   /* Основные CTA — глубокий графит с off-white текстом (элегантно на светлом) */
-  --primary: oklch(0.24 0.006 264);
-  --primary-foreground: oklch(0.98 0.002 250);
+  --primary: oklch(0.22 0.006 264);
+  --primary-foreground: oklch(0.98 0.002 95);
 
-  --secondary: oklch(0.945 0.003 260);
+  /* Stone / silver-grey */
+  --secondary: oklch(0.928 0.004 95);
   --secondary-foreground: oklch(0.24 0.006 264);
 
-  --muted: oklch(0.955 0.003 260);
-  --muted-foreground: oklch(0.5 0.006 264);
+  --muted: oklch(0.932 0.004 95);
+  --muted-foreground: oklch(0.46 0.007 264);
 
   /* Champagne как деликатный металлический акцент */
   --accent: oklch(0.72 0.055 72);
@@ -70,17 +72,43 @@
 
   --destructive: oklch(0.55 0.14 25);
 
-  --border: oklch(0.9 0.003 260);
-  --input: oklch(0.9 0.003 260);
-  --ring: oklch(0.24 0.006 264);
+  --border: oklch(0.882 0.004 95);
+  --input: oklch(0.882 0.004 95);
+  --ring: oklch(0.22 0.006 264);
 
-  /* Насыщенный бронзово-champagne тон для читаемого акцентного текста */
-  --champagne: oklch(0.56 0.058 66);
+  /* Насыщенный бронзово-champagne тон для читаемого акцентного текста на светлом */
+  --champagne: oklch(0.54 0.062 66);
 
-  /* Графит для hero-оверлеев и контрастных панелей */
-  --graphite: oklch(0.16 0.006 264);
+  /* Графит для hero-оверлеев и тёмных секций */
+  --graphite: oklch(0.175 0.006 264);
 
-  --radius: 0.625rem;
+  --radius: 0.75rem;
+}
+
+/*
+ * Тёмная графитовая секция. Переопределяет семантические токены для своего
+ * поддерева, поэтому дочерние утилиты (text-foreground, bg-card, text-champagne,
+ * border-border и т.д.) автоматически адаптируются под тёмный фон.
+ */
+.section-dark {
+  --background: oklch(0.175 0.006 264);
+  --foreground: oklch(0.965 0.003 95);
+  --card: oklch(0.215 0.006 264);
+  --card-foreground: oklch(0.965 0.003 95);
+  --secondary: oklch(0.255 0.006 264);
+  --secondary-foreground: oklch(0.965 0.003 95);
+  --muted-foreground: oklch(0.72 0.006 264);
+  --border: oklch(1 0 0 / 0.1);
+  /* На тёмном champagne светлее и «металличнее» */
+  --champagne: oklch(0.8 0.072 74);
+
+  background-color: var(--background);
+  background-image: linear-gradient(
+    180deg,
+    oklch(0.205 0.006 264) 0%,
+    oklch(0.16 0.006 264) 100%
+  );
+  color: var(--foreground);
 }
 
 @layer base {
