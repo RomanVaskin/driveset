@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { priceDisclaimer, wrappingPackages } from '@/lib/wrapping-config'
+import { priceDisclaimer, promotionDeadlineLabel, wrappingPackages } from '@/lib/wrapping-config'
 
 export function WrappingPackages() {
   return (
@@ -25,6 +25,7 @@ export function WrappingPackages() {
                 {item.regularPriceLabel && <span className="text-base text-muted-foreground line-through">{item.regularPriceLabel}</span>}
                 <span className="font-display text-2xl font-bold text-champagne">{item.priceLabel}</span>
               </div>
+              {item.featured && <p className="mt-2 text-xs font-medium text-champagne">{promotionDeadlineLabel}</p>}
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
               <p className="mt-4 text-sm font-medium">Срок: {item.duration}</p>
 

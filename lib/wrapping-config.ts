@@ -5,6 +5,8 @@ export const wrappingNav = [
   { label: 'Процесс', href: '#process' },
 ] as const
 
+export const promotionDeadlineLabel = 'Акция действует до 30 сентября'
+
 export type WrappingPackageId = 'front' | 'full-ppf' | 'matte-ppf' | 'color' | 'elements' | 'unknown'
 
 export type WrappingPackage = {

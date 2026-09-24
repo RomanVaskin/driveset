@@ -1,4 +1,5 @@
 import { BadgePercent } from 'lucide-react'
+import { promotionDeadlineLabel } from '@/lib/wrapping-config'
 
 export function WrappingPromotion() {
   return (
@@ -17,6 +18,7 @@ export function WrappingPromotion() {
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Скидка 20 000 ₽ действует только на полную оклейку прозрачной PPF-плёнкой.
             </p>
+            <p className="mt-2 text-sm font-semibold text-champagne">{promotionDeadlineLabel}</p>
           </div>
         </div>
         <a href="#calculator" className="inline-flex shrink-0 items-center justify-center rounded-md bg-champagne px-6 py-3.5 font-semibold text-graphite">
