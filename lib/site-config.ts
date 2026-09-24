@@ -23,6 +23,7 @@ export const site = {
   whatsapp: '+7 901 344-77-33',
   whatsappHref: 'https://wa.me/79013447733',
   max: 'MAX',
+  maxPhone: '+7 901 344-77-33',
   /** Демонстрационный номер только для мокапа на внутренней странице /plan. */
   planPhoneExample: '+7 (000) 000-00-00',
 } as const

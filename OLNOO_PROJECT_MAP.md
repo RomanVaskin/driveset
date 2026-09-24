@@ -11,6 +11,10 @@ Production-карта файлов. Обновлять при любом изм�
 | `app/globals.css` | Tailwind v4, дизайн-токены премиальной тёмной темы. |
 | `lib/site-config.ts` | **Единый источник контента**: бренд, подтверждённые контакты и часы работы, навигация, услуги, trust-метрики, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
 | `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`. |
+| `lib/wrapping-config.ts` | Подтверждённый контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, процесс и FAQ. |
+| `lib/wrapping-quiz.ts` | Типы состояния и чистый расчёт предварительной цены/срока для квиза оклейки. |
+| `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность `utm_*`/`yclid`. |
+| `lib/marketing-events.ts` | Типизированная граница событий Яндекс Метрики; без `NEXT_PUBLIC_YANDEX_METRIKA_ID` ничего не отправляет. |
 
 ## Секции лендинга (`components/site/`)
 
@@ -86,7 +90,31 @@ Next.js; до успешной загрузки использует `work-1..4.
 `#services`, `#about`, `#gallery`, `#contacts`, `#lead`, `#top`.
 Основной CTA «Рассчитать стоимость» ведёт на `#lead`, вторичный hero CTA — на
 `#gallery`. Карточка оклейки ведёт на будущий маршрут `/okleyka-avto` (маршрут на
-этапе 1 не создан).
+этапе 1 создан как отдельная frontend-only посадочная).
+
+## Посадочная `/okleyka-avto`
+
+Отдельная индексируемая страница для трафика Яндекс Директ. Собственный header,
+footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видимый
+`FAQPage`). Главную страницу не переиспользует и не меняет.
+
+| Файл | Роль | Тип |
+| --- | --- | --- |
+| `app/okleyka-avto/page.tsx` | Сборка страницы, route metadata и JSON-LD | server |
+| `app/okleyka-avto/opengraph-image.tsx` | Маршрутный OG-визуал без stock/AI-автомобиля | server |
+| `components/wrapping/header.tsx` | Sticky header и mobile menu | client |
+| `components/wrapping/hero.tsx` | H1, ценовые якоря, CTA, trust-факты и реальный poster | server + client media |
+| `components/wrapping/packages.tsx`, `promotion.tsx` | Основные пакеты и акция полного кузова PPF | server |
+| `components/wrapping/quiz.tsx` | 5 шагов → цена до контакта → один подарок → каналы связи | client |
+| `components/wrapping/contact-actions.tsx` | Telegram/WhatsApp/телефон; MAX копирует подтверждённый номер без выдуманного URL | client |
+| `components/wrapping/works.tsx`, `works-client.tsx` | Только runtime `category=wrapping`; WebP posters lazy, MP4 только после открытия | server + client |
+| `components/wrapping/new-car.tsx`, `films.tsx`, `benefits.tsx`, `process.tsx`, `element-prices.tsx`, `reviews.tsx`, `faq.tsx`, `final-cta.tsx` | Остальные коммерческие и информационные секции | server (вложенные contact actions — client) |
+| `components/wrapping/footer.tsx` | Контакты и навигация страницы | server |
+
+Якоря: `#top`, `#packages`, `#calculator`, `#works`, `#process`, `#photo-calc`.
+Предварительный расчёт работает полностью в браузере. Формы отправки и
+`app/api/lead` пока нет; `lead_submit` зарезервирован только для будущего
+успешного ответа API.
 
 ## Конфиг
 
