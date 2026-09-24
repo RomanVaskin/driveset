@@ -19,7 +19,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: 'DriveSet — детейлинг, полировка и оклейка автомобиля в Москве',
+    default: 'DriveSet — оклейка, полировка и химчистка автомобилей в Москве',
     template: '%s — DriveSet',
   },
   description: site.description,
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     locale: 'ru_RU',
     url: site.url,
     siteName: site.name,
-    title: 'DriveSet — детейлинг, полировка и оклейка автомобиля в Москве',
+    title: 'DriveSet — оклейка, полировка и химчистка автомобилей в Москве',
     description: site.description,
     images: [{ url: '/images/hero-detailing.png', width: 1200, height: 630, alt: 'DriveSet — детейлинг-центр в Москве' }],
   },

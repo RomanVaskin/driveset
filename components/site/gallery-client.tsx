@@ -18,9 +18,51 @@ type GalleryClientProps = {
   manifestUrl: string
 }
 
+type PortfolioCardProps = {
+  item: PortfolioItem
+  categoryLabel: string
+  featured?: boolean
+  onSelect: (item: PortfolioItem) => void
+}
+
 function mediaAlt(item: PortfolioItem, categoryLabel: string) {
   const kind = item.type === 'video' ? 'Видео работы' : 'Работа'
   return `${kind} DriveSet: ${categoryLabel}`
+}
+
+function PortfolioCard({ item, categoryLabel, featured = false, onSelect }: PortfolioCardProps) {
+  const preview = item.type === 'image' ? item.thumb : item.poster
+  const alt = mediaAlt(item, categoryLabel)
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(item)}
+      aria-label={`Открыть: ${alt}`}
+      className={`group relative overflow-hidden rounded-xl border border-border bg-card text-left shadow-soft ${
+        featured
+          ? 'col-span-2 aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto'
+          : 'aspect-square'
+      }`}
+    >
+      <Image
+        src={preview}
+        alt={alt}
+        fill
+        loading="lazy"
+        sizes="(max-width: 768px) 50vw, 25vw"
+        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      />
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10 text-xs font-medium uppercase tracking-[0.14em] text-white">
+        {categoryLabel}
+      </span>
+      {item.type === 'video' && (
+        <span className="absolute left-1/2 top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/55 text-white backdrop-blur-sm">
+          <Play className="ml-0.5 size-5" fill="currentColor" aria-hidden="true" />
+        </span>
+      )}
+    </button>
+  )
 }
 
 export function GalleryClient({ categoryLabels, fallbackItems, manifestUrl }: GalleryClientProps) {
@@ -63,10 +105,15 @@ export function GalleryClient({ categoryLabels, fallbackItems, manifestUrl }: Ga
     }
   }, [selectedItem])
 
-  const visibleItems = useMemo(() => {
-    if (!items || activeCategory === 'all') return items ?? []
-    return items.filter((item) => item.category === activeCategory)
-  }, [activeCategory, items])
+  const categoryEntries = useMemo(
+    () => Object.entries(categoryLabels) as [PortfolioCategory, string][],
+    [categoryLabels],
+  )
+
+  const visibleItems = useMemo(
+    () => items?.filter((item) => activeCategory === 'all' || item.category === activeCategory) ?? [],
+    [activeCategory, items],
+  )
 
   if (!items) {
     return (
@@ -84,6 +131,7 @@ export function GalleryClient({ categoryLabels, fallbackItems, manifestUrl }: Ga
               src={item.image}
               alt={item.alt}
               fill
+              loading="lazy"
               sizes="(max-width: 768px) 50vw, 25vw"
               className="object-cover transition-transform duration-500 hover:scale-[1.04]"
             />
@@ -105,9 +153,9 @@ export function GalleryClient({ categoryLabels, fallbackItems, manifestUrl }: Ga
               : 'border-border text-muted-foreground hover:border-champagne hover:text-foreground'
           }`}
         >
-          Все работы
+          Все
         </button>
-        {(Object.entries(categoryLabels) as [PortfolioCategory, string][]).map(([category, label]) => (
+        {categoryEntries.map(([category, label]) => (
           <button
             key={category}
             type="button"
@@ -123,42 +171,50 @@ export function GalleryClient({ categoryLabels, fallbackItems, manifestUrl }: Ga
         ))}
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-        {visibleItems.map((item, index) => {
-          const preview = item.type === 'image' ? item.thumb : item.poster
-          const alt = mediaAlt(item, categoryLabels[item.category])
-          return (
-            <button
+      {activeCategory === 'all' ? (
+        <div className="mt-10 space-y-14">
+          {categoryEntries.map(([category, label]) => {
+            const categoryItems = items.filter((item) => item.category === category)
+            if (categoryItems.length === 0) return null
+
+            return (
+              <section key={category} aria-labelledby={`gallery-${category}`}>
+                <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
+                  <h3 id={`gallery-${category}`} className="font-display text-xl font-semibold md:text-2xl">
+                    {label}
+                  </h3>
+                  <span className="text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                    {categoryItems.length} материалов
+                  </span>
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+                  {categoryItems.map((item, index) => (
+                    <PortfolioCard
+                      key={item.src}
+                      item={item}
+                      categoryLabel={label}
+                      featured={index === 0}
+                      onSelect={setSelectedItem}
+                    />
+                  ))}
+                </div>
+              </section>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+          {visibleItems.map((item, index) => (
+            <PortfolioCard
               key={item.src}
-              type="button"
-              onClick={() => setSelectedItem(item)}
-              aria-label={`Открыть: ${alt}`}
-              className={`group relative overflow-hidden rounded-xl border border-border bg-card text-left shadow-soft ${
-                index === 0 && activeCategory === 'all'
-                  ? 'col-span-2 aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto'
-                  : 'aspect-square'
-              }`}
-            >
-              <Image
-                src={preview}
-                alt={alt}
-                fill
-                loading="lazy"
-                sizes="(max-width: 768px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-              />
-              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-3 pt-10 text-xs font-medium uppercase tracking-[0.14em] text-white">
-                {categoryLabels[item.category]}
-              </span>
-              {item.type === 'video' && (
-                <span className="absolute left-1/2 top-1/2 flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-black/55 text-white backdrop-blur-sm">
-                  <Play className="ml-0.5 size-5" fill="currentColor" aria-hidden="true" />
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+              item={item}
+              categoryLabel={categoryLabels[item.category]}
+              featured={index === 0}
+              onSelect={setSelectedItem}
+            />
+          ))}
+        </div>
+      )}
 
       {selectedItem && (
         <div

@@ -9,7 +9,7 @@ Production-карта файлов. Обновлять при любом изм�
 | `app/layout.tsx` | Root layout: шрифты (Manrope/Inter), `<html lang="ru">`, metadata, viewport, Open Graph, SEO. |
 | `app/page.tsx` | Сборка лендинга + JSON-LD (`AutoDetailing`). Один `<h1>` живёт в Hero. |
 | `app/globals.css` | Tailwind v4, дизайн-токены премиальной тёмной темы. |
-| `lib/site-config.ts` | **Единый источник контента**: бренд, контакты, навигация, услуги, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
+| `lib/site-config.ts` | **Единый источник контента**: бренд, подтверждённые контакты и часы работы, навигация, услуги, trust-метрики, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
 | `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`. |
 
 ## Секции лендинга (`components/site/`)
@@ -20,11 +20,11 @@ Production-карта файлов. Обновлять при любом изм�
 | --- | --- | --- | --- |
 | `header.tsx` | Хедер, sticky, burger-меню | client | — |
 | `hero.tsx` | Hero: фото-poster (mobile) / фоновое видео (внешний URL, только md+), оверлей, `<h1>`, CTA | server | `#top` |
-| `services.tsx` | 3 карточки услуг, у каждой цена «от …» | server | `#services` |
-| `why-us.tsx` | «Почему DriveSet», 4 преимущества | server | `#about` |
+| `services.tsx` | 3 карточки услуг: приоритетная оклейка (PPF/цветная/передняя часть/полный кузов), полировка, химчистка | server | `#services` |
+| `why-us.tsx` | Блок доверия: опыт, команда, отзывы, рейтинг, часы работы | server | `#about` |
 | `process.tsx` | Процесс из 5 шагов | server | — |
 | `gallery.tsx` | Серверная оболочка галереи работ | server | `#gallery` |
-| `gallery-client.tsx` | Manifest, фильтры категорий, фото/видео и полноэкранный просмотр; при недоступном manifest оставляет статичный fallback | client | — |
+| `gallery-client.tsx` | Runtime manifest, фильтры «Все / Оклейка / Полировка / Химчистка», группировка «Все» по категориям, lazy-превью фото/видео и полноэкранный просмотр; при недоступном manifest оставляет статичный fallback | client | — |
 | `cta.tsx` | CTA-баннер | server | — |
 | `contacts.tsx` | Контакты + карта + форма | server | `#contacts` |
 | `yandex-map.tsx` | Интерактивная Яндекс Карта (iframe map-widget) | server | — |
@@ -40,7 +40,7 @@ robots.txt в проекте отсутствуют). Лендинговые к�
 | Файл | Роль |
 | --- | --- |
 | `app/plan/page.tsx` | Сборка страницы + `metadata` (robots noindex, canonical, OG). |
-| `lib/plan-config.ts` | Весь контент `/plan`. Цены — из `services`, контакты — из `site` (placeholders). |
+| `lib/plan-config.ts` | Весь контент `/plan`. Цены — из `services`; демонстрационный телефон будущего CRM-потока отделён от реального контакта главной. |
 | `components/plan/header.tsx`, `footer.tsx` | Свои хедер/футер: лендинговый `site/header.tsx` ведёт на якоря главной, на `/plan` их нет. |
 | `components/plan/plan-section.tsx` | `PlanSection` (отступы/eyebrow/h2 как на лендинге), `IconBadge`, `GroupLabel`. |
 | `components/plan/flow-chain.tsx` | Цепочка шагов со стрелками (вертикальная на мобильных, горизонтальная на lg+). |
@@ -84,7 +84,9 @@ Next.js; до успешной загрузки использует `work-1..4.
 ## Навигация / якоря
 
 `#services`, `#about`, `#gallery`, `#contacts`, `#lead`, `#top`.
-CTA «Записаться» везде ведёт на `#lead`.
+Основной CTA «Рассчитать стоимость» ведёт на `#lead`, вторичный hero CTA — на
+`#gallery`. Карточка оклейки ведёт на будущий маршрут `/okleyka-avto` (маршрут на
+этапе 1 не создан).
 
 ## Конфиг
 

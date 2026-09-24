@@ -1,14 +1,15 @@
-import { MapPin, Clock, Phone, Send, MessageCircle } from 'lucide-react'
+import { MapPin, Clock, Phone, Send, MessageCircle, MessagesSquare } from 'lucide-react'
 import { site } from '@/lib/site-config'
 import { YandexMap } from './yandex-map'
 import { LeadForm } from './lead-form'
 
 const contactRows = [
   { icon: MapPin, label: 'Адрес', value: site.address },
-  { icon: Clock, label: 'Часы работы', value: site.workHoursPlaceholder },
-  { icon: Phone, label: 'Телефон', value: site.phonePlaceholder },
-  { icon: Send, label: 'Telegram', value: site.telegramPlaceholder },
-  { icon: MessageCircle, label: 'WhatsApp', value: site.whatsappPlaceholder },
+  { icon: Clock, label: 'Часы работы', value: site.workHours },
+  { icon: Phone, label: 'Телефон', value: site.phone, href: site.phoneHref },
+  { icon: Send, label: 'Telegram', value: site.telegram, href: site.telegramHref },
+  { icon: MessageCircle, label: 'WhatsApp', value: site.whatsapp, href: site.whatsappHref },
+  { icon: MessagesSquare, label: 'MAX', value: site.max },
 ]
 
 export function Contacts() {
@@ -22,7 +23,7 @@ export function Contacts() {
           </h2>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
+        <div className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="flex flex-col gap-8">
             <address className="not-italic">
               <dl className="divide-y divide-border rounded-xl border border-border bg-card shadow-soft">
@@ -35,7 +36,11 @@ export function Contacts() {
                       <dt className="text-xs uppercase tracking-wide text-muted-foreground">
                         {row.label}
                       </dt>
-                      <dd className="mt-0.5 text-base font-medium text-pretty">{row.value}</dd>
+                      <dd className="mt-0.5 text-base font-medium text-pretty">
+                        {'href' in row && row.href ? (
+                          <a href={row.href} className="transition-colors hover:text-champagne">{row.value}</a>
+                        ) : row.value}
+                      </dd>
                     </div>
                   </div>
                 ))}
@@ -45,7 +50,7 @@ export function Contacts() {
           </div>
 
           <div id="lead" className="scroll-mt-24">
-            <h3 className="mb-4 font-display text-xl font-bold">Оставить заявку</h3>
+            <h3 className="mb-4 font-display text-xl font-bold">Рассчитать стоимость</h3>
             <LeadForm />
           </div>
         </div>

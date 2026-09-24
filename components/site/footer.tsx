@@ -7,6 +7,7 @@ export function Footer() {
         <div>
           <p className="font-display text-lg font-extrabold tracking-tight">{site.name}</p>
           <p className="mt-2 text-sm text-muted-foreground">{site.address}</p>
+          <a href={site.phoneHref} className="mt-2 inline-block text-sm text-foreground transition-colors hover:text-champagne">{site.phone}</a>
         </div>
 
         <nav className="flex gap-8" aria-label="Навигация в подвале">

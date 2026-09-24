@@ -1,27 +1,26 @@
-import { advantages, site } from '@/lib/site-config'
+import { site, trustStats } from '@/lib/site-config'
 
 export function WhyUs() {
   return (
     <section id="about" className="section-dark scroll-mt-20 border-y border-border">
       <div className="mx-auto max-w-6xl px-5 py-20 md:py-28 lg:px-8">
         <div className="max-w-2xl">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">
-            Почему {site.name}
-          </p>
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">{site.name} в цифрах</p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-4xl lg:text-5xl">
-            Спокойный, предсказуемый результат
+            Опыт, которому доверяют автомобиль
           </h2>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
-          {advantages.map((item, i) => (
-            <div key={item.title} className="flex flex-col gap-4 bg-card p-7">
-              <span className="font-display text-sm font-semibold text-champagne">
-                {String(i + 1).padStart(2, '0')}
-              </span>
-              <p className="font-display text-lg font-semibold leading-snug text-pretty">
-                {item.title}
-              </p>
+        <div className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-5">
+          {trustStats.map((item, index) => (
+            <div key={item.label} className={`flex min-h-36 flex-col justify-between bg-card p-5 sm:p-7 ${index === trustStats.length - 1 ? 'col-span-2 lg:col-span-1' : ''}`}>
+              <span className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">0{index + 1}</span>
+              <div className="mt-8">
+                <p className={`font-display font-bold tracking-tight text-champagne ${item.value.length > 5 ? 'text-2xl' : 'text-4xl'}`}>
+                  {item.value}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">{item.label}</p>
+              </div>
             </div>
           ))}
         </div>

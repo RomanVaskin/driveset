@@ -2,7 +2,7 @@
  * Контент внутренней страницы `/plan` (стратегия развития DriveSet).
  * Как и `site-config.ts`, держим данные отдельно от разметки: компоненты
  * в `components/plan/` только рендерят. Цены берём из `services`, контакты —
- * из `site` (placeholders), чтобы не выдумывать данные.
+ * из `site`; демонстрационные данные для будущих функций явно отделены.
  */
 
 import {
@@ -159,7 +159,7 @@ export const quizSteps = [
 export const telegramFields: ReadonlyArray<readonly [string, string]> = [
   ['Авто', 'Zeekr 001'],
   ['Услуга', 'Полировка'],
-  ['Телефон', site.phonePlaceholder],
+  ['Телефон', site.planPhoneExample],
   ['Источник', 'Яндекс Директ'],
   ['UTM', 'utm_campaign=polish'],
 ]

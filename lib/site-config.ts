@@ -9,17 +9,22 @@ export const site = {
   name: 'DriveSet',
   domain: 'driveset.ru',
   url: 'https://driveset.ru',
-  tagline: 'Подготовка и уход за автомобилем',
+  tagline: 'Оклейка, полировка и химчистка автомобилей в Москве',
   description:
-    'DriveSet — профессиональная химчистка, полировка и оклейка автомобилей в Москве. Ул. Наташи Ковшовой, 4с2.',
+    'DriveSet — оклейка, полировка и химчистка автомобилей в Москве. Ул. Наташи Ковшовой, 4с2.',
   city: 'Москва',
   address: 'Москва, улица Наташи Ковшовой, 4с2',
   addressShort: 'ул. Наташи Ковшовой, 4с2',
-  // Placeholders — заполнить реальными данными на следующем этапе.
-  phonePlaceholder: '+7 (000) 000-00-00',
-  workHoursPlaceholder: 'Ежедневно, по записи',
-  telegramPlaceholder: '@driveset',
-  whatsappPlaceholder: '+7 (000) 000-00-00',
+  phone: '+7 901 344-77-33',
+  phoneHref: 'tel:+79013447733',
+  workHours: 'Ежедневно 10:00–22:00',
+  telegram: '@driveset',
+  telegramHref: 'https://t.me/driveset',
+  whatsapp: '+7 901 344-77-33',
+  whatsappHref: 'https://wa.me/79013447733',
+  max: 'MAX',
+  /** Демонстрационный номер только для мокапа на внутренней странице /plan. */
+  planPhoneExample: '+7 (000) 000-00-00',
 } as const
 
 export type NavLink = { label: string; href: string }
@@ -38,45 +43,58 @@ export type Service = {
   image: string
   imageAlt: string
   price: string
+  features?: readonly string[]
+  href: string
+  cta: string
+  featured?: boolean
 }
 
 export const services: Service[] = [
   {
-    id: 'cleaning',
-    title: 'Химчистка',
+    id: 'wrapping',
+    title: 'Оклейка автомобиля',
     description:
-      'Глубокая очистка салона, удаление загрязнений, пятен и запахов.',
-    image: '/images/service-cleaning.png',
-    imageAlt: 'Профессиональная химчистка салона автомобиля в детейлинг-центре DriveSet',
-    price: 'от 5 000 ₽',
+      'Защищаем заводское покрытие или полностью меняем образ автомобиля качественными плёнками.',
+    image: '/images/service-wrapping.png',
+    imageAlt: 'Процесс оклейки кузова автомобиля защитной PPF-плёнкой в DriveSet',
+    price: 'от 20 000 ₽',
+    features: ['Защитная PPF', 'Цветная оклейка', 'Передняя часть', 'Полный кузов'],
+    href: '/okleyka-avto',
+    cta: 'Подробнее об оклейке',
+    featured: true,
   },
   {
     id: 'polishing',
-    title: 'Полировка',
+    title: 'Полировка кузова',
     description:
       'Восстановление блеска кузова и устранение мелких царапин и дефектов ЛКП.',
     image: '/images/service-polishing.png',
     imageAlt: 'Процесс профессиональной полировки кузова автомобиля в DriveSet',
     price: 'от 10 000 ₽',
+    href: '#lead',
+    cta: 'Рассчитать стоимость',
   },
   {
-    id: 'wrapping',
-    title: 'Оклейка',
+    id: 'cleaning',
+    title: 'Химчистка салона',
     description:
-      'Защитная и декоративная оклейка автомобиля качественными автомобильными плёнками.',
-    image: '/images/service-wrapping.png',
-    imageAlt: 'Процесс оклейки кузова автомобиля защитной PPF-плёнкой в DriveSet',
-    price: 'от 9 000 ₽',
+      'Глубокая очистка салона, удаление загрязнений, пятен и посторонних запахов.',
+    image: '/images/service-cleaning.png',
+    imageAlt: 'Профессиональная химчистка салона автомобиля в детейлинг-центре DriveSet',
+    price: 'от 5 000 ₽',
+    href: '#lead',
+    cta: 'Рассчитать стоимость',
   },
 ]
 
-export type Advantage = { title: string }
+export type TrustStat = { value: string; label: string }
 
-export const advantages: Advantage[] = [
-  { title: 'Профессиональные материалы' },
-  { title: 'Опытные мастера' },
-  { title: 'Аккуратная работа' },
-  { title: 'Работаем по записи' },
+export const trustStats: TrustStat[] = [
+  { value: '5', label: 'лет опыта' },
+  { value: '3', label: 'мастера' },
+  { value: '41', label: 'отзыв' },
+  { value: '5.0', label: 'рейтинг' },
+  { value: '10:00–22:00', label: 'ежедневно' },
 ]
 
 export type ProcessStep = { step: string; title: string; description: string }

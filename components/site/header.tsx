@@ -70,7 +70,7 @@ export function Header() {
                 : 'bg-white text-[oklch(0.2_0.01_264)]'
             }`}
           >
-            Записаться
+            Рассчитать стоимость
           </a>
           <button
             type="button"
@@ -106,7 +106,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="mt-2 rounded-md bg-primary px-3 py-3.5 text-center text-base font-semibold text-primary-foreground"
             >
-              Записаться
+              Рассчитать стоимость
             </a>
           </nav>
         </div>

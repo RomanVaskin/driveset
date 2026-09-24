@@ -22,7 +22,9 @@ const jsonLd = {
     addressLocality: 'Москва',
     addressCountry: 'RU',
   },
-  makesOffer: ['Химчистка автомобиля', 'Полировка кузова', 'Оклейка автомобиля'],
+  telephone: site.phone,
+  openingHours: 'Mo-Su 10:00-22:00',
+  makesOffer: ['Оклейка автомобиля', 'Полировка кузова', 'Химчистка автомобиля'],
 }
 
 export default function Page() {
