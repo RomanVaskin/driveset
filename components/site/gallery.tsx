@@ -1,5 +1,9 @@
-import Image from 'next/image'
-import { galleryItems } from '@/lib/site-config'
+import { GalleryClient } from '@/components/site/gallery-client'
+import {
+  galleryCategoryLabels,
+  galleryItems,
+  portfolioManifestUrl,
+} from '@/lib/site-config'
 
 export function Gallery() {
   return (
@@ -12,26 +16,11 @@ export function Gallery() {
           </h2>
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4">
-          {galleryItems.map((item, i) => (
-            <div
-              key={item.image}
-              className={`relative overflow-hidden rounded-xl border border-border shadow-soft ${
-                i === 0
-                  ? 'col-span-2 aspect-[16/10] md:col-span-2 md:row-span-2 md:aspect-auto'
-                  : 'aspect-square'
-              }`}
-            >
-              <Image
-                src={item.image || '/placeholder.svg'}
-                alt={item.alt}
-                fill
-                sizes="(max-width: 768px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 hover:scale-[1.04]"
-              />
-            </div>
-          ))}
-        </div>
+        <GalleryClient
+          categoryLabels={galleryCategoryLabels}
+          fallbackItems={galleryItems}
+          manifestUrl={portfolioManifestUrl}
+        />
       </div>
     </section>
   )

@@ -91,6 +91,15 @@ export const processSteps: ProcessStep[] = [
 
 export type GalleryItem = { image: string; alt: string }
 
+export const portfolioManifestUrl = '/media/portfolio-web/manifest.json'
+
+export const galleryCategoryLabels = {
+  wrapping: 'Оклейка',
+  polishing: 'Полировка',
+  'dry-cleaning': 'Химчистка',
+} as const
+
+/** Fallback shown while the external portfolio manifest is unavailable. */
 export const galleryItems: GalleryItem[] = [
   { image: '/images/work-1.png', alt: 'Полированный кузов автомобиля с глубоким блеском — работа DriveSet' },
   { image: '/images/work-2.png', alt: 'Чистый салон автомобиля после химчистки в DriveSet' },

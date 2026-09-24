@@ -9,7 +9,8 @@ Production-карта файлов. Обновлять при любом изм�
 | `app/layout.tsx` | Root layout: шрифты (Manrope/Inter), `<html lang="ru">`, metadata, viewport, Open Graph, SEO. |
 | `app/page.tsx` | Сборка лендинга + JSON-LD (`AutoDetailing`). Один `<h1>` живёт в Hero. |
 | `app/globals.css` | Tailwind v4, дизайн-токены премиальной тёмной темы. |
-| `lib/site-config.ts` | **Единый источник контента**: бренд, контакты, навигация, услуги, процесс, галерея, ссылка на Яндекс Карту. |
+| `lib/site-config.ts` | **Единый источник контента**: бренд, контакты, навигация, услуги, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
+| `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`. |
 
 ## Секции лендинга (`components/site/`)
 
@@ -22,7 +23,8 @@ Production-карта файлов. Обновлять при любом изм�
 | `services.tsx` | 3 карточки услуг, у каждой цена «от …» | server | `#services` |
 | `why-us.tsx` | «Почему DriveSet», 4 преимущества | server | `#about` |
 | `process.tsx` | Процесс из 5 шагов | server | — |
-| `gallery.tsx` | Галерея работ | server | `#gallery` |
+| `gallery.tsx` | Серверная оболочка галереи работ | server | `#gallery` |
+| `gallery-client.tsx` | Manifest, фильтры категорий, фото/видео и полноэкранный просмотр; при недоступном manifest оставляет статичный fallback | client | — |
 | `cta.tsx` | CTA-баннер | server | — |
 | `contacts.tsx` | Контакты + карта + форма | server | `#contacts` |
 | `yandex-map.tsx` | Интерактивная Яндекс Карта (iframe map-widget) | server | — |
@@ -59,6 +61,25 @@ Hero-видео `https://driveset.ru/media/hero-optimized.mp4` отдаёт ngin
 (файл лежит на сервере, **в git его нет**, `public/media/` не создаём). URL
 захардкожен константой `heroVideoSrc` в `components/site/hero.tsx`. Если файла
 нет или он не грузится — виден poster `/images/hero-detailing.png`.
+
+Portfolio-оригиналы находятся на production в
+`/opt/olnoo/media/driveset/portfolio/{wrapping,polishing,dry-cleaning}/`.
+Производные и `manifest.json` создаются вне Git в
+`/opt/olnoo/media/driveset/portfolio-web/` и доступны сайту по URL
+`/media/portfolio-web/`. Галерея загружает manifest в браузере без пересборки
+Next.js; до успешной загрузки использует `work-1..4.png`.
+
+## Media pipeline
+
+| Файл | Роль |
+| --- | --- |
+| `scripts/process-portfolio-media.mjs` | Рекурсивно и идемпотентно готовит WebP/MP4/poster, проверяет производные, изолирует пофайловые ошибки и атомарно пишет manifest/state. Оригиналы только читает. |
+| `package.json` → `media:portfolio` | Запуск pipeline с production-путями по умолчанию. Для локальной проверки скрипт принимает `--input`, `--output`, `--public-base`. |
+
+Системные утилиты: `ffmpeg`/`ffprobe` и `cwebp` (Ubuntu-пакет `webp`); для
+встреченных HEIC дополнительно `heif-convert` из Ubuntu-пакета
+`libheif-examples`. Скрипт проверяет их наличие, но ничего не устанавливает. Команда на KZ:
+`pnpm --dir /opt/olnoo/projects/driveset run media:portfolio`.
 
 ## Навигация / якоря
 
