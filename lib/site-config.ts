@@ -56,7 +56,7 @@ export const services: Service[] = [
     title: 'Оклейка автомобиля',
     description:
       'Защищаем заводское покрытие или полностью меняем образ автомобиля качественными плёнками.',
-    image: '/images/service-wrapping.png',
+    image: '/images/service-wrapping.webp',
     imageAlt: 'Процесс оклейки кузова автомобиля защитной PPF-плёнкой в DriveSet',
     price: 'от 20 000 ₽',
     features: ['Защитная PPF', 'Цветная оклейка', 'Передняя часть', 'Полный кузов'],
@@ -69,7 +69,7 @@ export const services: Service[] = [
     title: 'Полировка кузова',
     description:
       'Восстановление блеска кузова и устранение мелких царапин и дефектов ЛКП.',
-    image: '/images/service-polishing.png',
+    image: '/images/service-polishing.webp',
     imageAlt: 'Процесс профессиональной полировки кузова автомобиля в DriveSet',
     price: 'от 10 000 ₽',
     href: '#lead',
@@ -80,7 +80,7 @@ export const services: Service[] = [
     title: 'Химчистка салона',
     description:
       'Глубокая очистка салона, удаление загрязнений, пятен и посторонних запахов.',
-    image: '/images/service-cleaning.png',
+    image: '/images/service-cleaning.webp',
     imageAlt: 'Профессиональная химчистка салона автомобиля в детейлинг-центре DriveSet',
     price: 'от 5 000 ₽',
     href: '#lead',
@@ -120,10 +120,10 @@ export const galleryCategoryLabels = {
 
 /** Fallback shown while the external portfolio manifest is unavailable. */
 export const galleryItems: GalleryItem[] = [
-  { image: '/images/work-1.png', alt: 'Полированный кузов автомобиля с глубоким блеском — работа DriveSet' },
-  { image: '/images/work-2.png', alt: 'Чистый салон автомобиля после химчистки в DriveSet' },
-  { image: '/images/work-3.png', alt: 'Премиальный автомобиль после оклейки защитной плёнкой в DriveSet' },
-  { image: '/images/work-4.png', alt: 'Детейлинг передней части автомобиля после полировки в DriveSet' },
+  { image: '/images/work-1.webp', alt: 'Полированный кузов автомобиля с глубоким блеском — работа DriveSet' },
+  { image: '/images/work-2.webp', alt: 'Чистый салон автомобиля после химчистки в DriveSet' },
+  { image: '/images/work-3.webp', alt: 'Премиальный автомобиль после оклейки защитной плёнкой в DriveSet' },
+  { image: '/images/work-4.webp', alt: 'Детейлинг передней части автомобиля после полировки в DriveSet' },
 ]
 
 /** Yandex Maps interactive widget query (адаптивный интерактивный виджет без API-ключа). */

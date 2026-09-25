@@ -162,6 +162,13 @@ production-факты (сервер, путь, порт) — в `OLNOO_PROJECT_M
 
 - `next.config.mjs` содержит `typescript.ignoreBuildErrors: true` — `pnpm build`
   ошибки типов **не ловит**. Перед коммитом запускай `npx tsc --noEmit`.
+- `next.config.mjs` содержит `images.unoptimized: true` **намеренно** — не включать
+  Next Image Optimization без выделенного анализа. Портфолио-медиа (`/media/portfolio-web/`)
+  отдаётся nginx с диска вне `public/`; встроенный оптимизатор Next ищет локальные
+  файлы только внутри `public/` и не сможет прочитать эти пути (502/404 на
+  hero/works `/okleyka-avto` и на галерее главной). Вместо runtime-оптимизации
+  статичные PNG в `public/images/` пережаты офлайн в WebP заранее (см. раздел
+  «Изображения» в `OLNOO_PROJECT_MAP.md`).
 - Рабочая директория на production-сервере совпадает с путём `driveset.service`:
   `pnpm build` в ней перезаписывает `.next` живого сайта. Проверочные сборки —
   в копии проекта вне этой директории.

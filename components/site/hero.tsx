@@ -3,14 +3,14 @@ import { ArrowDown, MapPin } from 'lucide-react'
 import { site } from '@/lib/site-config'
 
 const heroVideoSrc = 'https://driveset.ru/media/hero-optimized.mp4'
-const heroPoster = '/images/hero-detailing.png'
+const heroPoster = '/images/hero-detailing.webp'
 
 export function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/images/hero-detailing.png"
+          src="/images/hero-detailing.webp"
           alt="Премиальный автомобиль в чистом детейлинг-пространстве DriveSet"
           fill
           priority

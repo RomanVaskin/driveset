@@ -63,6 +63,14 @@ robots.txt в проекте отсутствуют). Лендинговые к�
 `service-wrapping.png`, `work-1..4.png`. Все сгенерированы, alt заданы в
 `lib/site-config.ts` и компонентах.
 
+Для главной (`lib/site-config.ts`, `components/site/hero.tsx`) те же кадры дополнительно
+пережаты в WebP (`hero-detailing.webp`, `service-*.webp`, `work-1..4.webp`, thumbnails
+уменьшены до 800px) — главная и fallback-галерея используют только `.webp`. Оригинальные
+`.png` сохранены и используются `/plan` (`components/plan/*`) и `og:image` в `app/layout.tsx`
+(WebP не трогаем там намеренно — другой маршрут вне задачи оптимизации). При
+добавлении новых изображений на главную повторять этот же пайплайн (`cwebp -q 80..82 -m 6`,
+для миниатюр `-resize 800 800`).
+
 ## Медиа вне репозитория
 
 Hero-видео `https://driveset.ru/media/hero-optimized.mp4` отдаёт nginx на production
