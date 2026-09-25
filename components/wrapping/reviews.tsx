@@ -15,7 +15,7 @@ export function WrappingReviews() {
         </div>
         <div className="sm:border-l sm:border-border sm:pl-8">
           <h2 className="font-display text-2xl font-bold md:text-3xl">Результат лучше любых обещаний</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Мы не публикуем вымышленные имена и тексты. Посмотрите реальные работы и получите расчёт для своего автомобиля.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Посмотрите наши работы и получите расчёт для своего автомобиля.</p>
           <a href="#works" className="mt-5 inline-flex text-sm font-semibold text-champagne">Посмотреть работы</a>
         </div>
       </div>

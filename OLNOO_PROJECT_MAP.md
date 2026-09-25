@@ -6,15 +6,18 @@ Production-карта файлов. Обновлять при любом изм�
 
 | Файл | Роль |
 | --- | --- |
-| `app/layout.tsx` | Root layout: шрифты (Manrope/Inter), `<html lang="ru">`, metadata, viewport, Open Graph, SEO. |
+| `app/layout.tsx` | Root layout: шрифты (Manrope/Inter), `<html lang="ru">`, metadata, viewport, Open Graph, SEO и клиентский bootstrap маркетинга. |
 | `app/page.tsx` | Сборка лендинга + JSON-LD (`AutoDetailing`). Один `<h1>` живёт в Hero. |
 | `app/globals.css` | Tailwind v4, дизайн-токены премиальной тёмной темы. |
 | `lib/site-config.ts` | **Единый источник контента**: бренд, подтверждённые контакты и часы работы, навигация, услуги, trust-метрики, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
 | `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`. |
-| `lib/wrapping-config.ts` | Подтверждённый контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, процесс и FAQ. |
+| `lib/wrapping-config.ts` | Контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, демонстрационный пример трекера, процесс и FAQ. |
 | `lib/wrapping-quiz.ts` | Типы состояния и чистый расчёт предварительной цены/срока для квиза оклейки. |
-| `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность `utm_*`/`yclid`. |
-| `lib/marketing-events.ts` | Типизированная граница событий Яндекс Метрики; без `NEXT_PUBLIC_YANDEX_METRIKA_ID` ничего не отправляет. |
+| `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность пяти `utm_*` и `yclid` с сохранением первого значения каждого поля. |
+| `lib/marketing-events.ts` | Типизированная граница целей Яндекс Метрики с белым списком неперсональных параметров (`package`, `displayed_price`, `promo`, `gift`, `channel`). |
+| `lib/lead-submission.ts` | Общий клиентский POST обеих форм в `/api/lead`; собирает attribution/pagePath и отправляет `lead_submit` только после `201 {ok:true}`. |
+| `components/marketing-bootstrap.tsx` | Клиентский сбор атрибуции на всех маршрутах, загрузка Метрики при наличии ID и просмотры страниц App Router. |
+| `app/api/lead/route.ts` | Единственный Node.js endpoint заявок: валидация, honeypot, ограничение частоты/дублей в памяти процесса, server-side POST в OLNOO CRM и минимальный ответ браузеру. |
 
 ## Секции лендинга (`components/site/`)
 
@@ -30,9 +33,10 @@ Production-карта файлов. Обновлять при любом изм�
 | `gallery.tsx` | Серверная оболочка галереи работ | server | `#gallery` |
 | `gallery-client.tsx` | Runtime manifest, фильтры «Все / Оклейка / Полировка / Химчистка», группировка «Все» по категориям, lazy-превью фото/видео и полноэкранный просмотр; при недоступном manifest оставляет статичный fallback | client | — |
 | `cta.tsx` | CTA-баннер | server | — |
-| `contacts.tsx` | Контакты + карта + форма | server | `#contacts` |
+| `contacts.tsx` | Контакты + карта + форма; номер MAX копируется через client-компонент | server | `#contacts` |
+| `max-contact.tsx` | Копирование номера MAX и событие `max_click` на главной | client | — |
 | `yandex-map.tsx` | Интерактивная Яндекс Карта (iframe map-widget) | server | — |
-| `lead-form.tsx` | Форма заявки (frontend-only) | client | `#lead` |
+| `lead-form.tsx` | Форма заявки через `/api/lead`; поля скрыты от записи Вебвизора | client | `#lead` |
 | `footer.tsx` | Подвал | server | — |
 
 ## Внутренняя страница `/plan`
@@ -90,7 +94,7 @@ Next.js; до успешной загрузки использует `work-1..4.
 `#services`, `#about`, `#gallery`, `#contacts`, `#lead`, `#top`.
 Основной CTA «Рассчитать стоимость» ведёт на `#lead`, вторичный hero CTA — на
 `#gallery`. Карточка оклейки ведёт на будущий маршрут `/okleyka-avto` (маршрут на
-этапе 1 создан как отдельная frontend-only посадочная).
+этапе 1 создан как отдельная посадочная с клиентским расчётом и общим `/api/lead`).
 
 ## Посадочная `/okleyka-avto`
 
@@ -103,24 +107,29 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 | `app/okleyka-avto/page.tsx` | Сборка страницы, route metadata и JSON-LD | server |
 | `app/okleyka-avto/opengraph-image.tsx` | Маршрутный OG-визуал без stock/AI-автомобиля | server |
 | `components/wrapping/header.tsx` | Sticky header и mobile menu | client |
-| `components/wrapping/hero.tsx` | H1, ценовые якоря, CTA, trust-факты и реальный poster | server + client media |
+| `components/wrapping/hero.tsx` | H1, ценовые якоря, CTA (включая `photo_calc_click`), trust-факты и реальный poster | server + client media/actions |
 | `components/wrapping/packages.tsx`, `promotion.tsx` | Основные пакеты и акция полного кузова PPF | server |
-| `components/wrapping/quiz.tsx` | 5 шагов → цена до контакта → один подарок → каналы связи | client |
-| `components/wrapping/contact-actions.tsx` | Telegram/WhatsApp/телефон; MAX копирует подтверждённый номер без выдуманного URL | client |
+| `components/wrapping/quiz.tsx` | 5 вопросов → цена и выбор одного подарка на экране результата → контакт и явная отправка через `/api/lead`; свободный ввод скрыт от записи Вебвизора | client |
+| `components/wrapping/contact-actions.tsx` | Telegram/телефон; MAX копирует подтверждённый номер без выдуманного URL и отмечает клик; CTA по фото отмечает `photo_calc_click`; WhatsApp скрыт из UI | client |
 | `components/wrapping/works.tsx`, `works-client.tsx` | Только runtime `category=wrapping`; WebP posters lazy, MP4 только после открытия | server + client |
+| `components/wrapping/tracker-preview.tsx` | Статический коммерческий пример будущего персонального онлайн-трекера после преимуществ; без ссылки и backend | server |
 | `components/wrapping/new-car.tsx`, `films.tsx`, `benefits.tsx`, `process.tsx`, `element-prices.tsx`, `reviews.tsx`, `faq.tsx`, `final-cta.tsx` | Остальные коммерческие и информационные секции | server (вложенные contact actions — client) |
 | `components/wrapping/footer.tsx` | Контакты и навигация страницы | server |
 
 Якоря: `#top`, `#packages`, `#calculator`, `#works`, `#process`, `#photo-calc`.
-Предварительный расчёт работает полностью в браузере. Формы отправки и
-`app/api/lead` пока нет; `lead_submit` зарезервирован только для будущего
-успешного ответа API.
+Предварительный расчёт работает полностью в браузере. После цены и подарка
+пользователь может отправить имя/телефон в CRM через `/api/lead`; прямые каналы
+связи остаются отдельными действиями. `lead_submit` срабатывает только после
+успешного ответа API. До production-запуска сбора ПД нужны утверждённая
+Privacy Policy и согласие у обеих форм.
 
 ## Конфиг
 
 | Файл | Назначение |
 | --- | --- |
 | `next.config.mjs` | Images unoptimized + security headers. |
+| `.env.production` | Публичный ID реального счётчика Метрики через `NEXT_PUBLIC_YANDEX_METRIKA_ID`; Next.js встраивает значение при production build. |
+| Server-only env | `OLNOO_CRM_URL` (база `https://admin.olnoo.com`) и `OLNOO_CRM_API_KEY` для `/api/lead`; значения не должны попадать в `NEXT_PUBLIC_*` или Git. |
 
 ## Деплой (production, KZ)
 

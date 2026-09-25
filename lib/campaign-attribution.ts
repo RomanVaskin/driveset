@@ -1,4 +1,4 @@
-export const attributionKeys = ['utm_source', 'utm_campaign', 'utm_content', 'utm_term', 'yclid'] as const
+export const attributionKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'yclid'] as const
 
 export type AttributionKey = (typeof attributionKeys)[number]
 export type CampaignAttribution = Partial<Record<AttributionKey, string>>
@@ -22,7 +22,7 @@ export function captureCampaignAttribution(): CampaignAttribution {
     if (value) incoming[key] = value
   }
 
-  const result = Object.keys(previous).length > 0 ? previous : incoming
+  const result = { ...incoming, ...previous }
 
   if (Object.keys(result).length > 0) {
     try {

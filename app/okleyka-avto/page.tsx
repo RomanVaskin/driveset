@@ -13,6 +13,7 @@ import { WrappingProcess } from '@/components/wrapping/process'
 import { WrappingPromotion } from '@/components/wrapping/promotion'
 import { WrappingQuiz } from '@/components/wrapping/quiz'
 import { WrappingReviews } from '@/components/wrapping/reviews'
+import { WrappingTrackerPreview } from '@/components/wrapping/tracker-preview'
 import { WrappingWorks } from '@/components/wrapping/works'
 import { site } from '@/lib/site-config'
 import { faqItems } from '@/lib/wrapping-config'
@@ -81,6 +82,7 @@ export default function WrappingPage() {
         <NewCarSection />
         <FilmsSection />
         <WrappingBenefits />
+        <WrappingTrackerPreview />
         <WrappingProcess />
         <ElementPrices />
         <WrappingReviews />

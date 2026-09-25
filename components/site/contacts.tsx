@@ -1,15 +1,15 @@
-import { MapPin, Clock, Phone, Send, MessageCircle, MessagesSquare } from 'lucide-react'
+import { MapPin, Clock, Phone, Send, MessagesSquare } from 'lucide-react'
 import { site } from '@/lib/site-config'
 import { YandexMap } from './yandex-map'
 import { LeadForm } from './lead-form'
+import { MaxContact } from './max-contact'
 
 const contactRows = [
   { icon: MapPin, label: 'Адрес', value: site.address },
   { icon: Clock, label: 'Часы работы', value: site.workHours },
   { icon: Phone, label: 'Телефон', value: site.phone, href: site.phoneHref },
   { icon: Send, label: 'Telegram', value: site.telegram, href: site.telegramHref },
-  { icon: MessageCircle, label: 'WhatsApp', value: site.whatsapp, href: site.whatsappHref },
-  { icon: MessagesSquare, label: 'MAX', value: site.max },
+  { icon: MessagesSquare, label: 'MAX', value: site.maxPhone },
 ]
 
 export function Contacts() {
@@ -37,7 +37,7 @@ export function Contacts() {
                         {row.label}
                       </dt>
                       <dd className="mt-0.5 text-base font-medium text-pretty">
-                        {'href' in row && row.href ? (
+                        {row.label === 'MAX' ? <MaxContact /> : 'href' in row && row.href ? (
                           <a href={row.href} className="transition-colors hover:text-champagne">{row.value}</a>
                         ) : row.value}
                       </dd>

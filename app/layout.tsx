@@ -1,7 +1,9 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Manrope, Inter } from 'next/font/google'
+import { Suspense } from 'react'
 import { site } from '@/lib/site-config'
+import { MarketingBootstrap } from '@/components/marketing-bootstrap'
 import './globals.css'
 
 const inter = Inter({
@@ -59,6 +61,7 @@ export default function RootLayout({
     <html lang="ru" className={`${inter.variable} ${manrope.variable} bg-background`}>
       <body className="font-sans antialiased">
         {children}
+        <Suspense fallback={null}><MarketingBootstrap /></Suspense>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

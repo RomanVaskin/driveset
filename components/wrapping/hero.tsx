@@ -1,5 +1,6 @@
-import { ArrowDown, Camera, Check, MapPin } from 'lucide-react'
+import { ArrowDown, Check, MapPin } from 'lucide-react'
 import { site } from '@/lib/site-config'
+import { PhotoCalcLink } from './contact-actions'
 import { WrappingHeroMedia } from './works-client'
 
 const heroFacts = ['5 лет опыта', '41 отзыв', 'Рейтинг 5.0', 'Гарантия 3 года'] as const
@@ -19,6 +20,7 @@ export function WrappingHero() {
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/70 md:text-xl">
             Защитите кузов от сколов, царапин и реагентов
           </p>
+          <p className="mt-4 text-sm font-semibold text-champagne">Подарок на выбор при заказе</p>
 
           <div className="mt-7 grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
             <div className="bg-card p-4 sm:p-5">
@@ -37,10 +39,7 @@ export function WrappingHero() {
               Рассчитать стоимость
               <ArrowDown className="ml-2 size-4" aria-hidden="true" />
             </a>
-            <a href="#photo-calc" className="inline-flex items-center justify-center rounded-md border border-white/20 bg-white/5 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10">
-              <Camera className="mr-2 size-4" aria-hidden="true" />
-              Рассчитать по фото
-            </a>
+            <PhotoCalcLink />
           </div>
 
           <ul className="mt-8 grid grid-cols-2 gap-x-5 gap-y-3 text-sm text-white/65">

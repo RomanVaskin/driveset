@@ -3,18 +3,31 @@
 import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { services } from '@/lib/site-config'
+import { submitLead } from '@/lib/lead-submission'
 
-/**
- * Frontend-only lead form (этап 1).
- * На следующем этапе сюда подключается backend / Telegram-уведомления / CRM.
- * Пока просто показываем состояние успешной отправки на клиенте.
- */
 export function LeadForm() {
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState('')
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setSubmitted(true)
+    if (sending) return
+    const form = new FormData(e.currentTarget)
+    setSending(true)
+    setError('')
+    const service = services.find((item) => item.id === form.get('service'))
+    const result = await submitLead({
+      name: String(form.get('name') ?? ''),
+      phone: String(form.get('phone') ?? ''),
+      contactChannel: 'phone',
+      vehicleModel: String(form.get('car') ?? ''),
+      package: service?.title ?? (form.get('service') === 'other' ? 'Другое / не знаю' : ''),
+      website: String(form.get('website') ?? ''),
+    })
+    setSending(false)
+    if (result.ok) setSubmitted(true)
+    else setError(result.error ?? 'Не удалось отправить заявку.')
   }
 
   if (submitted) {
@@ -43,9 +56,10 @@ export function LeadForm() {
             name="name"
             type="text"
             required
+            maxLength={80}
             autoComplete="name"
             placeholder="Как к вам обращаться"
-            className="h-12 rounded-md border border-input bg-background px-4 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
+            className="ym-disable-keys h-12 rounded-md border border-input bg-background px-4 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
           />
         </div>
 
@@ -58,9 +72,10 @@ export function LeadForm() {
             name="phone"
             type="tel"
             required
+            maxLength={32}
             autoComplete="tel"
             placeholder="+7 (___) ___-__-__"
-            className="h-12 rounded-md border border-input bg-background px-4 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
+            className="ym-disable-keys h-12 rounded-md border border-input bg-background px-4 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
           />
         </div>
 
@@ -72,8 +87,9 @@ export function LeadForm() {
             id="car"
             name="car"
             type="text"
+            maxLength={80}
             placeholder="Марка и модель"
-            className="h-12 rounded-md border border-input bg-background px-4 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
+            className="ym-disable-keys h-12 rounded-md border border-input bg-background px-4 text-base outline-none transition-colors placeholder:text-muted-foreground focus:border-ring"
           />
         </div>
 
@@ -101,10 +117,14 @@ export function LeadForm() {
 
         <button
           type="submit"
+          disabled={sending}
           className="mt-1 inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-base font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         >
-          Отправить заявку
+          {sending ? 'Отправляем…' : 'Отправить заявку'}
         </button>
+        <div className="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true"><label htmlFor="lead-website">Сайт</label><input id="lead-website" name="website" type="text" autoComplete="off" tabIndex={-1} /></div>
+        {/* Add the approved Privacy Policy link and consent control before production launch. */}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       </div>
     </form>
   )

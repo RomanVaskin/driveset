@@ -20,10 +20,10 @@ export function WrappingFinalCta() {
             <Camera className="mt-1 size-5 shrink-0 text-champagne" aria-hidden="true" />
             <div>
               <h3 className="font-display text-xl font-bold">Рассчитать по фото</h3>
-              <p className="mt-1 text-sm text-muted-foreground">Отправьте фотографии автомобиля напрямую в Telegram или WhatsApp. Загрузка файлов на сайте не используется.</p>
+              <p className="mt-1 text-sm text-muted-foreground">Отправьте фотографии автомобиля в Telegram или MAX.</p>
             </div>
           </div>
-          <ContactActions photoOnly whatsappText="Здравствуйте! Хочу рассчитать стоимость оклейки автомобиля по фото." />
+          <ContactActions />
         </div>
       </div>
     </section>

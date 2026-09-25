@@ -7,7 +7,7 @@ export function WrappingWorks() {
         <div className="max-w-3xl">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">Реальные работы</p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-5xl">Автомобили, которые мы уже защитили</h2>
-          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">Только материалы категории «Оклейка» из production portfolio DriveSet. Видео открывается по нажатию и не утяжеляет первый экран.</p>
+          <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">Посмотрите наши работы по оклейке автомобилей.</p>
         </div>
         <WrappingWorksClient />
       </div>

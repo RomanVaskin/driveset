@@ -5,7 +5,7 @@ export const wrappingNav = [
   { label: 'Процесс', href: '#process' },
 ] as const
 
-export const promotionDeadlineLabel = 'Акция действует до 30 сентября'
+export const promotionDeadlineLabel = 'Акция действует до 30 сентября 2026 года включительно'
 
 export type WrappingPackageId = 'front' | 'full-ppf' | 'matte-ppf' | 'color' | 'elements' | 'unknown'
 
@@ -130,9 +130,26 @@ export const wrappingBenefits = [
   'Реальные фото и видео работ',
   'Выбор плёнки и образцов',
   'Забор и возврат автомобиля',
-  'Персональный трекер выполнения заказа',
+  'Персональный онлайн-трекер работ',
   'Ответ на заявку до 15 минут в рабочее время',
 ] as const
+
+export const wrappingTrackerPreview = {
+  title: 'Следите за оклейкой автомобиля онлайн',
+  description: 'После приёмки автомобиля получите персональную ссылку. Смотрите этап работ, фото и видео процесса и дату готовности — без звонков в студию.',
+  car: 'Geely Monjaro',
+  order: 'Заказ №DS-1042',
+  service: 'Полная оклейка PPF',
+  stages: [
+    { title: 'Автомобиль принят', status: 'complete' },
+    { title: 'Подготовка', status: 'complete' },
+    { title: 'Оклейка — сейчас', status: 'current' },
+    { title: 'Контроль качества', status: 'upcoming' },
+    { title: 'Готов к выдаче', status: 'upcoming' },
+  ],
+  readyAt: '28 сентября, 18:00',
+  caption: 'На каждом этапе можно посмотреть фото и видео работ.',
+} as const
 
 export const wrappingProcess = [
   { title: 'Бесплатный осмотр', text: 'Осматриваем автомобиль и уточняем задачу до начала работ.' },

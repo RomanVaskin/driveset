@@ -1,29 +1,15 @@
 'use client'
 
-import { Copy, MessageCircle, Phone, Send } from 'lucide-react'
+import { Camera, Copy, Phone, Send } from 'lucide-react'
 import { useState } from 'react'
-import { captureCampaignAttribution } from '@/lib/campaign-attribution'
 import { site } from '@/lib/site-config'
-import { trackMarketingEvent, type MarketingEventPayload } from '@/lib/marketing-events'
+import { trackMarketingEvent } from '@/lib/marketing-events'
 
-type ContactActionsProps = {
-  payload?: MarketingEventPayload
-  whatsappText?: string
-  photoOnly?: boolean
-}
-
-export function ContactActions({ payload = {}, whatsappText, photoOnly = false }: ContactActionsProps) {
+export function ContactActions() {
   const [copied, setCopied] = useState(false)
-  const whatsappHref = whatsappText
-    ? `${site.whatsappHref}?text=${encodeURIComponent(whatsappText)}`
-    : site.whatsappHref
-
-  function eventPayload(channel: string) {
-    return { ...captureCampaignAttribution(), ...payload, contact_channel: channel }
-  }
 
   async function copyMaxNumber() {
-    trackMarketingEvent('max_click', eventPayload('max'))
+    trackMarketingEvent('max_click')
     try {
       await navigator.clipboard.writeText(site.maxPhone)
       setCopied(true)
@@ -36,27 +22,28 @@ export function ContactActions({ payload = {}, whatsappText, photoOnly = false }
   const baseClass = 'flex min-h-14 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left text-sm font-semibold transition-colors hover:border-champagne/50'
 
   return (
-    <div className={`grid gap-3 ${photoOnly ? 'sm:grid-cols-2' : 'sm:grid-cols-2'}`}>
-      <a href={site.telegramHref} target="_blank" rel="noreferrer" onClick={() => trackMarketingEvent('telegram_click', eventPayload('telegram'))} className={baseClass}>
+    <div className="grid gap-3 sm:grid-cols-2">
+      <a href={site.telegramHref} target="_blank" rel="noreferrer" className={baseClass}>
         <Send className="size-5 text-champagne" aria-hidden="true" />
-        Telegram <span className="ml-auto font-normal text-muted-foreground">{site.telegram}</span>
+        Telegram <span className="ml-auto min-w-0 text-right font-normal text-muted-foreground">{site.telegram}</span>
       </a>
-      <a href={whatsappHref} target="_blank" rel="noreferrer" onClick={() => trackMarketingEvent('whatsapp_click', eventPayload('whatsapp'))} className={baseClass}>
-        <MessageCircle className="size-5 text-champagne" aria-hidden="true" />
-        WhatsApp <span className="ml-auto font-normal text-muted-foreground">{site.whatsapp}</span>
+      <button type="button" onClick={copyMaxNumber} className={baseClass}>
+        <Copy className="size-5 shrink-0 text-champagne" aria-hidden="true" />
+        MAX <span className="ml-auto min-w-0 text-right font-normal text-muted-foreground">{copied ? 'Номер скопирован' : site.maxPhone}</span>
+      </button>
+      <a href={site.phoneHref} className={baseClass}>
+        <Phone className="size-5 shrink-0 text-champagne" aria-hidden="true" />
+        Позвонить <span className="ml-auto min-w-0 text-right font-normal text-muted-foreground">{site.phone}</span>
       </a>
-      {!photoOnly && (
-        <>
-          <button type="button" onClick={copyMaxNumber} className={baseClass}>
-            <Copy className="size-5 text-champagne" aria-hidden="true" />
-            MAX <span className="ml-auto font-normal text-muted-foreground">{copied ? 'Номер скопирован' : site.maxPhone}</span>
-          </button>
-          <a href={site.phoneHref} onClick={() => trackMarketingEvent('phone_click', eventPayload('phone'))} className={baseClass}>
-            <Phone className="size-5 text-champagne" aria-hidden="true" />
-            Позвонить <span className="ml-auto font-normal text-muted-foreground">{site.phone}</span>
-          </a>
-        </>
-      )}
     </div>
+  )
+}
+
+export function PhotoCalcLink() {
+  return (
+    <a href="#photo-calc" onClick={() => trackMarketingEvent('photo_calc_click')} className="inline-flex items-center justify-center rounded-md border border-white/20 bg-white/5 px-6 py-3.5 font-semibold text-white transition-colors hover:bg-white/10">
+      <Camera className="mr-2 size-4" aria-hidden="true" />
+      Рассчитать по фото
+    </a>
   )
 }

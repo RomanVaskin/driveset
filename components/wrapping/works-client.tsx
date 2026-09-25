@@ -59,14 +59,14 @@ export function WrappingHeroMedia() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/10" />
           <div className="absolute inset-x-0 bottom-0 p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-champagne">Реальная работа DriveSet</p>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/75">Видео загружается только после открытия — на первом экране используется оптимизированный poster.</p>
+            <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/75">Посмотрите автомобиль после оклейки.</p>
           </div>
         </>
       ) : (
         <div className="flex h-full min-h-[360px] flex-col justify-end p-7 sm:min-h-[480px] md:min-h-[570px]">
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(135deg,transparent_45%,oklch(1_0_0/0.08)_50%,transparent_55%)] [background-size:3rem_3rem]" />
           <p className="relative text-xs font-semibold uppercase tracking-[0.18em] text-champagne">Реальные работы DriveSet</p>
-          <p className="relative mt-2 text-sm text-white/60">{failed ? 'Не удалось загрузить portfolio manifest.' : 'Загружаем оптимизированное превью…'}</p>
+          <p className="relative mt-2 text-sm text-white/60">{failed ? 'Работы временно недоступны.' : 'Загружаем работы…'}</p>
         </div>
       )}
     </div>
@@ -103,7 +103,7 @@ export function WrappingWorksClient() {
   }
 
   if (videos.length === 0) {
-    return <p className="mt-10 text-sm text-muted-foreground">В manifest пока нет доступных wrapping-видео.</p>
+    return <p className="mt-10 text-sm text-muted-foreground">Работы временно недоступны.</p>
   }
 
   return (
