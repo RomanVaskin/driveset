@@ -133,7 +133,7 @@ media и квиз). `/api/lead` — единственное backend-исклю�
 ## Деплой
 
 Автодеплой по push в `main`: `.github/workflows/deploy.yml` подключается по SSH
-к production-серверу (KZ, secrets `SERVER_HOST`/`SERVER_USER`/`SERVER_SSH_KEY`),
+к production-серверу (REG.RU, secrets `SERVER_HOST`/`SERVER_USER`/`SERVER_SSH_KEY`),
 обновляет код (`git reset --hard origin/main`), пересобирает (`pnpm install
 --frozen-lockfile` + `pnpm build`) и перезапускает `driveset.service`, затем
 проверяет `systemctl is-active` и `curl http://127.0.0.1:3230`. Актуальные

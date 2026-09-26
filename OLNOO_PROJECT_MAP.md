@@ -94,8 +94,8 @@ Next.js; до успешной загрузки использует `work-1..4.
 
 Системные утилиты: `ffmpeg`/`ffprobe` и `cwebp` (Ubuntu-пакет `webp`); для
 встреченных HEIC дополнительно `heif-convert` из Ubuntu-пакета
-`libheif-examples`. Скрипт проверяет их наличие, но ничего не устанавливает. Команда на KZ:
-`pnpm --dir /opt/olnoo/projects/driveset run media:portfolio`.
+`libheif-examples`. Скрипт проверяет их наличие, но ничего не устанавливает. Команда на
+production: `pnpm --dir /opt/driveset run media:portfolio`.
 
 ## Навигация / якоря
 
@@ -139,13 +139,13 @@ Privacy Policy и согласие у обеих форм.
 | `.env.production` | Публичный ID реального счётчика Метрики через `NEXT_PUBLIC_YANDEX_METRIKA_ID`; Next.js встраивает значение при production build. |
 | Server-only env | `OLNOO_CRM_URL` (база `https://admin.olnoo.com`) и `OLNOO_CRM_API_KEY` для `/api/lead`; значения не должны попадать в `NEXT_PUBLIC_*` или Git. |
 
-## Деплой (production, KZ)
+## Деплой (production, REG.RU)
 
 | Факт | Значение |
 | --- | --- |
 | Домен | `driveset.ru` |
-| Сервер | `213.155.29.140` |
-| Путь на сервере | `/opt/olnoo/projects/driveset` |
+| Сервер | REG.RU VPS (IP не хранится в документации — см. GitHub Secret `SERVER_HOST`) |
+| Путь на сервере | `/opt/driveset` |
 | systemd-сервис | `driveset.service` |
 | Порт | `3230` |
 | Ветка деплоя | `main` |
@@ -156,3 +156,7 @@ Privacy Policy и согласие у обеих форм.
 Деплой: `git fetch` + `git reset --hard origin/main` → `pnpm install --frozen-lockfile`
 → `pnpm build` → `systemctl restart driveset.service` → проверка `is-active` и
 `curl http://127.0.0.1:3230`.
+
+Production перенесён с прежнего KZ-сервера (`213.155.29.140`,
+`/opt/olnoo/projects/driveset`) на REG.RU в 2026-09; secrets обновлены, путь на
+сервере поменялся, остальной процесс деплоя не изменился.
