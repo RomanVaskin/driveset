@@ -2,6 +2,9 @@ import { gifts, quizPackageOptions } from '@/lib/wrapping-config'
 
 export type MarketingEventName =
   | 'quiz_start'
+  | 'quiz_step_1'
+  | 'quiz_step_2'
+  | 'quiz_phone'
   | 'car_selected'
   | 'package_selected'
   | 'price_shown'

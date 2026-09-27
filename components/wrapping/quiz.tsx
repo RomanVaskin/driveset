@@ -33,10 +33,27 @@ export function WrappingQuiz() {
     }
   }, [answers.packageId, quote, step])
 
+  useEffect(() => {
+    if (step === 6 && quote) trackOnce('quiz_phone')
+  }, [quote, step])
+
+  useEffect(() => {
+    // Every «Рассчитать…» CTA on the page is a link to #calculator.
+    function onClick(event: MouseEvent) {
+      if (event.target instanceof Element && event.target.closest('a[href="#calculator"]')) markStarted()
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [])
+
+  function trackOnce(name: 'quiz_start' | 'quiz_step_1' | 'quiz_step_2' | 'quiz_phone') {
+    if (tracked.current.has(name)) return
+    tracked.current.add(name)
+    trackMarketingEvent(name)
+  }
+
   function markStarted() {
-    if (tracked.current.has('quiz_start')) return
-    tracked.current.add('quiz_start')
-    trackMarketingEvent('quiz_start')
+    trackOnce('quiz_start')
   }
 
   function update<K extends keyof QuizAnswers>(key: K, value: QuizAnswers[K]) {
@@ -45,6 +62,8 @@ export function WrappingQuiz() {
   }
 
   function next() {
+    if (step === 0) trackOnce('quiz_step_1')
+    if (step === 1) trackOnce('quiz_step_2')
     if (step === 2) {
       trackMarketingEvent('car_selected')
     }

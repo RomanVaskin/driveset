@@ -117,7 +117,7 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 | `components/wrapping/header.tsx` | Sticky header и mobile menu | client |
 | `components/wrapping/hero.tsx` | H1, ценовые якоря, CTA (включая `photo_calc_click`), trust-факты и реальный poster | server + client media/actions |
 | `components/wrapping/packages.tsx`, `promotion.tsx` | Основные пакеты и акция полного кузова PPF | server |
-| `components/wrapping/quiz.tsx` | 5 вопросов → цена и выбор одного подарка на экране результата → контакт и явная отправка через `/api/lead`; свободный ввод скрыт от записи Вебвизора | client |
+| `components/wrapping/quiz.tsx` | 5 вопросов → цена и выбор одного подарка на экране результата → контакт и явная отправка через `/api/lead`; свободный ввод скрыт от записи Вебвизора; цели воронки `quiz_start`, `quiz_step_1`, `quiz_step_2`, `quiz_phone` | client |
 | `components/wrapping/contact-actions.tsx` | Telegram/телефон; MAX копирует подтверждённый номер без выдуманного URL и отмечает клик; CTA по фото отмечает `photo_calc_click`; WhatsApp скрыт из UI | client |
 | `components/wrapping/works.tsx`, `works-client.tsx` | Только runtime `category=wrapping`; WebP posters lazy, MP4 только после открытия | server + client |
 | `components/wrapping/tracker-preview.tsx` | Статический коммерческий пример будущего персонального онлайн-трекера после преимуществ; без ссылки и backend | server |
