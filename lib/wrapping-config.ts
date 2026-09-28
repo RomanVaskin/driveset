@@ -5,7 +5,13 @@ export const wrappingNav = [
   { label: 'Процесс', href: '#process' },
 ] as const
 
+/** Full-body PPF promotion 210 000 → 190 000 ₽: the single source of its end date. */
+export const promotionEndsAt = new Date('2026-09-30T23:59:59+03:00')
 export const promotionDeadlineLabel = 'Акция действует до 30 сентября 2026 года включительно'
+
+export function isPromotionActive(now: Date = new Date()) {
+  return now.getTime() <= promotionEndsAt.getTime()
+}
 
 export type WrappingPackageId = 'front' | 'full-ppf' | 'matte-ppf' | 'color' | 'elements' | 'unknown'
 
@@ -70,13 +76,25 @@ export const wrappingPackages: readonly WrappingPackage[] = [
   },
 ] as const
 
-export const quizPackageOptions: readonly { id: WrappingPackageId; label: string }[] = [
-  { id: 'front', label: 'Передняя часть' },
-  { id: 'full-ppf', label: 'Полный кузов PPF' },
-  { id: 'matte-ppf', label: 'Матовый PPF' },
-  { id: 'color', label: 'Цветная оклейка' },
+export type QuizPackageId = 'full-ppf' | 'front' | 'elements'
+
+/**
+ * Packages as they must be shown at `now`: after the promotion ends the
+ * regular price becomes the only price and no discount is shown.
+ */
+export function getWrappingPackages(now: Date = new Date()): readonly WrappingPackage[] {
+  if (isPromotionActive(now)) return wrappingPackages
+  return wrappingPackages.map((item) =>
+    item.regularPrice && item.regularPriceLabel
+      ? { ...item, price: item.regularPrice, priceLabel: item.regularPriceLabel, regularPrice: undefined, regularPriceLabel: undefined }
+      : item,
+  )
+}
+
+export const quizPackageOptions: readonly { id: QuizPackageId; label: string }[] = [
+  { id: 'full-ppf', label: 'Полная оклейка' },
+  { id: 'front', label: 'Передняя часть (зона риска)' },
   { id: 'elements', label: 'Отдельные элементы' },
-  { id: 'unknown', label: 'Не знаю — нужна рекомендация' },
 ] as const
 
 export const timingOptions = [
@@ -102,6 +120,9 @@ export const elementPrices: readonly {
   { id: 'windshield', title: 'Защита лобового стекла', price: 30000, priceLabel: 'от 30 000 ₽' },
   { id: 'chrome-delete', title: 'Антихром', price: 20000, priceLabel: 'от 20 000 ₽' },
 ] as const
+
+/** Quiz-only option without a confirmed price: it is priced after inspection. */
+export const otherElementsOption = { id: 'other', title: 'Другие элементы' } as const
 
 export type GiftId = 'rain' | 'leather-protection' | 'leather-ceramic' | 'transfer' | 'coupon'
 

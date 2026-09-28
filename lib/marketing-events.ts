@@ -1,15 +1,13 @@
-import { gifts, quizPackageOptions } from '@/lib/wrapping-config'
+import { quizPackageOptions } from '@/lib/wrapping-config'
 
 export type MarketingEventName =
   | 'quiz_start'
-  | 'quiz_step_1'
-  | 'quiz_step_2'
-  | 'quiz_phone'
   | 'car_selected'
   | 'package_selected'
-  | 'price_shown'
-  | 'gift_selected'
+  | 'elements_selected'
+  | 'quiz_phone'
   | 'lead_submit'
+  | 'offer_view'
   | 'telegram_click'
   | 'whatsapp_click'
   | 'max_click'
@@ -18,9 +16,6 @@ export type MarketingEventName =
 
 export type MarketingEventPayload = {
   package?: string
-  displayed_price?: string
-  gift?: string
-  promo?: 'full_ppf'
   channel?: 'telegram' | 'max' | 'phone' | 'photo'
 }
 
@@ -46,14 +41,9 @@ export function trackMarketingEvent(name: MarketingEventName, payload: Marketing
   const counterId = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID)
   if (!Number.isInteger(counterId) || counterId <= 0 || typeof window.ym !== 'function') return
   const safePayload: MarketingEventPayload = {}
-  if ((name === 'package_selected' || name === 'price_shown') && quizPackageOptions.some((item) => item.id === payload.package)) {
+  if ((name === 'package_selected' || name === 'offer_view') && quizPackageOptions.some((item) => item.id === payload.package)) {
     safePayload.package = payload.package
   }
-  if (name === 'price_shown' && typeof payload.displayed_price === 'string' && /^от \d{1,3}(?: \d{3})* ₽(?: по акции)?$/.test(payload.displayed_price)) {
-    safePayload.displayed_price = payload.displayed_price
-  }
-  if (name === 'gift_selected' && gifts.some((item) => item.id === payload.gift)) safePayload.gift = payload.gift
-  if (name === 'price_shown' && safePayload.package === 'full-ppf') safePayload.promo = 'full_ppf'
   if (name in contactChannels) safePayload.channel = contactChannels[name as keyof typeof contactChannels]
   try {
     window.ym(counterId, 'reachGoal', name, safePayload)

@@ -16,26 +16,36 @@ import { WrappingReviews } from '@/components/wrapping/reviews'
 import { WrappingTrackerPreview } from '@/components/wrapping/tracker-preview'
 import { WrappingWorks } from '@/components/wrapping/works'
 import { site } from '@/lib/site-config'
-import { faqItems } from '@/lib/wrapping-config'
+import { faqItems, isPromotionActive } from '@/lib/wrapping-config'
+
+// Re-render at least once a minute so promotion texts switch off on their own after `promotionEndsAt`.
+export const revalidate = 60
 
 const title = 'Оклейка автомобиля полиуретановой плёнкой в Москве'
-const description = 'Оклейка автомобиля защитной PPF-плёнкой в DriveSet. Передняя часть от 85 000 ₽, полный кузов PPF от 190 000 ₽ по акции. Бесплатный осмотр.'
 
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: { canonical: '/okleyka-avto' },
-  openGraph: {
-    type: 'website',
-    locale: 'ru_RU',
-    url: '/okleyka-avto',
-    siteName: site.name,
-    title: `${title} — ${site.name}`,
-    description,
-  },
+function getDescription() {
+  const fullPpf = isPromotionActive() ? 'полный кузов PPF от 190 000 ₽ по акции' : 'полный кузов PPF от 210 000 ₽'
+  return `Оклейка автомобиля защитной PPF-плёнкой в DriveSet. Передняя часть от 85 000 ₽, ${fullPpf}. Бесплатный осмотр.`
 }
 
-const jsonLd = {
+export function generateMetadata(): Metadata {
+  const description = getDescription()
+  return {
+    title,
+    description,
+    alternates: { canonical: '/okleyka-avto' },
+    openGraph: {
+      type: 'website',
+      locale: 'ru_RU',
+      url: '/okleyka-avto',
+      siteName: site.name,
+      title: `${title} — ${site.name}`,
+      description,
+    },
+  }
+}
+
+const getJsonLd = (description: string) => ({
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -66,12 +76,12 @@ const jsonLd = {
       })),
     },
   ],
-}
+})
 
 export default function WrappingPage() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(getJsonLd(getDescription())).replace(/</g, '\\u003c') }} />
       <WrappingHeader />
       <main>
         <WrappingHero />

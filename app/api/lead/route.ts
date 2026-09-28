@@ -16,7 +16,7 @@ const fieldLimits = {
   vehicleMake: 60,
   vehicleModel: 80,
   vehicleYear: 4,
-  package: 100,
+  package: 200,
   displayedPrice: 80,
   gift: 100,
   timing: 80,
@@ -74,7 +74,8 @@ function parseLead(value: unknown): LeadInput | null {
     if (text.length > fieldLimits[key]) return null
     input[key] = text
   }
-  if (input.website || input.name.length < 2) return null
+  // Name is optional (the quiz asks only for a phone); when given it must be real.
+  if (input.website || (input.name && input.name.length < 2)) return null
   if (!['telegram', 'max', 'phone'].includes(input.contactChannel)) return null
   if (!input.pagePath.startsWith('/') || input.pagePath.startsWith('//') || input.pagePath.includes('?')) return null
   if (input.vehicleYear && !/^\d{4}$/.test(input.vehicleYear)) return null
@@ -148,7 +149,8 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         project: 'driveset',
-        name: input.name,
+        // OLNOO CRM requires a non-empty name: a phone-only lead gets a technical title, not a fake person name.
+        name: input.name || 'Заявка DriveSet',
         phone: input.phone,
         source: 'Ads',
         pagePath: input.pagePath,

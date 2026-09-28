@@ -9,7 +9,7 @@ export function WrappingFinalCta() {
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">Следующий шаг</p>
             <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-5xl">Рассчитайте стоимость оклейки вашего автомобиля</h2>
-            <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">Получите предварительную цену сразу, а точную — после бесплатного осмотра.</p>
+            <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">Узнайте цену и подарок после короткого расчёта, а точную стоимость — после бесплатного осмотра.</p>
             <a href="#calculator" className="mt-7 inline-flex rounded-md bg-champagne px-7 py-3.5 font-semibold text-graphite">Перейти к расчёту</a>
           </div>
           <ContactActions />

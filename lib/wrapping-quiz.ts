@@ -1,80 +1,69 @@
 import {
   elementPrices,
-  wrappingPackages,
+  getWrappingPackages,
+  otherElementsOption,
   type ElementPriceId,
-  type GiftId,
-  type WrappingPackageId,
+  type QuizPackageId,
 } from '@/lib/wrapping-config'
-import type { CampaignAttribution } from '@/lib/campaign-attribution'
+
+export type QuizElementId = ElementPriceId | typeof otherElementsOption.id
 
 export type QuizAnswers = {
-  brand: string
-  model: string
-  year: string
-  packageId: WrappingPackageId | ''
-  elementId: ElementPriceId | ''
-  timing: string
-  giftId: GiftId | ''
+  /** Free text as typed by the user, e.g. «Geely Monjaro» or «Monjaro». */
+  car: string
+  packageId: QuizPackageId | ''
+  elementIds: QuizElementId[]
 }
 
 export type QuoteResult = {
   packageTitle: string
   priceLabel: string | null
   regularPriceLabel?: string
+  promo: boolean
   duration: string
-  comparison?: readonly { title: string; priceLabel: string }[]
-}
-
-/** Client draft for the future POST /api/lead contract. The server must add project=driveset. */
-export type LeadSubmissionDraft = {
-  attribution: CampaignAttribution
-  car: { brand: string; model: string; year: string }
-  package: string
-  preliminaryPrice: string | null
-  desiredTiming: string
-  gift: string
-  contact: { channel: 'telegram' | 'whatsapp' | 'max' | 'phone'; value: string }
+  /** Selected elements with their own price; null price = confirmed after inspection. */
+  items?: readonly { title: string; priceLabel: string | null }[]
 }
 
 export const initialQuizAnswers: QuizAnswers = {
-  brand: '',
-  model: '',
-  year: '',
+  car: '',
   packageId: '',
-  elementId: '',
-  timing: '',
-  giftId: '',
+  elementIds: [],
 }
 
-export function getQuoteResult(answers: QuizAnswers): QuoteResult | null {
+function rub(value: number) {
+  return `от ${value.toLocaleString('ru-RU').replace(/\s/g, ' ')} ₽`
+}
+
+export function getQuoteResult(answers: QuizAnswers, now: Date = new Date()): QuoteResult | null {
   if (!answers.packageId) return null
 
-  if (answers.packageId === 'unknown') {
-    return {
-      packageTitle: 'Нужна рекомендация',
-      priceLabel: null,
-      duration: 'Зависит от выбранного варианта',
-      comparison: wrappingPackages.map(({ title, priceLabel }) => ({ title, priceLabel })),
-    }
-  }
-
   if (answers.packageId === 'elements') {
-    const element = elementPrices.find((item) => item.id === answers.elementId)
-    if (!element) return null
+    if (answers.elementIds.length === 0) return null
+    const priced = elementPrices.filter((item) => answers.elementIds.includes(item.id))
+    const hasOther = answers.elementIds.includes(otherElementsOption.id)
+    const items = [
+      ...priced.map(({ title, priceLabel }) => ({ title, priceLabel })),
+      ...(hasOther ? [{ title: otherElementsOption.title, priceLabel: null }] : []),
+    ]
     return {
-      packageTitle: element.title,
-      priceLabel: element.priceLabel,
+      packageTitle: `Отдельные элементы: ${items.map((item) => item.title).join(', ')}`,
+      // A total is only honest when every selected element has a confirmed price.
+      priceLabel: priced.length > 0 && !hasOther ? rub(priced.reduce((sum, item) => sum + item.price, 0)) : null,
+      promo: false,
       duration: 'Подтвердим после бесплатного осмотра',
+      items,
     }
   }
 
-  const selectedPackage = wrappingPackages.find((item) => item.id === answers.packageId)
+  const selectedPackage = getWrappingPackages(now).find((item) => item.id === answers.packageId)
   if (!selectedPackage) return null
 
   return {
     packageTitle: selectedPackage.title,
     priceLabel: selectedPackage.priceLabel,
     regularPriceLabel: selectedPackage.regularPriceLabel,
+    promo: Boolean(selectedPackage.regularPriceLabel),
     duration: selectedPackage.duration,
   }
 }

@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { priceDisclaimer, promotionDeadlineLabel, wrappingPackages } from '@/lib/wrapping-config'
+import { getWrappingPackages, priceDisclaimer, promotionDeadlineLabel } from '@/lib/wrapping-config'
 
 export function WrappingPackages() {
   return (
@@ -13,11 +13,11 @@ export function WrappingPackages() {
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {wrappingPackages.map((item) => (
+          {getWrappingPackages().map((item) => (
             <article key={item.id} className={`relative flex flex-col rounded-2xl border p-6 shadow-soft md:p-8 ${item.featured ? 'border-champagne/50 bg-primary text-primary-foreground' : 'border-border bg-card'}`}>
-              {item.featured && (
+              {item.regularPrice && (
                 <span className="mb-5 w-fit rounded-full border border-champagne/40 bg-champagne/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-champagne">
-                  Скидка 20 000 ₽
+                  Скидка {(item.regularPrice - item.price).toLocaleString('ru-RU').replace(/\s/g, ' ')} ₽
                 </span>
               )}
               <h3 className="font-display text-2xl font-bold tracking-tight">{item.title}</h3>
@@ -25,7 +25,7 @@ export function WrappingPackages() {
                 {item.regularPriceLabel && <span className="text-base text-muted-foreground line-through">{item.regularPriceLabel}</span>}
                 <span className="font-display text-2xl font-bold text-champagne">{item.priceLabel}</span>
               </div>
-              {item.featured && <p className="mt-2 text-xs font-medium text-champagne">{promotionDeadlineLabel}</p>}
+              {item.regularPrice && <p className="mt-2 text-xs font-medium text-champagne">{promotionDeadlineLabel}</p>}
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
               <p className="mt-4 text-sm font-medium">Срок: {item.duration}</p>
 

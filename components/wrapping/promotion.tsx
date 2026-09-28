@@ -1,7 +1,8 @@
 import { BadgePercent } from 'lucide-react'
-import { promotionDeadlineLabel } from '@/lib/wrapping-config'
+import { isPromotionActive, promotionDeadlineLabel } from '@/lib/wrapping-config'
 
 export function WrappingPromotion() {
+  if (!isPromotionActive()) return null
   return (
     <section className="px-5 pb-20 md:pb-28 lg:px-8">
       <div className="section-dark mx-auto flex max-w-6xl flex-col gap-6 rounded-2xl border border-border p-7 shadow-card sm:p-10 md:flex-row md:items-center md:justify-between">
