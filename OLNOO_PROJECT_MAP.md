@@ -13,7 +13,8 @@ Production-карта файлов. Обновлять при любом изм�
 | `lib/site-config.ts` | **Единый источник контента**: бренд, подтверждённые контакты и часы работы, навигация, услуги, trust-метрики, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
 | `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`; `loadPortfolioManifest()` — общий браузерный запрос manifest (используется `/polirovka-avto`). |
 | `lib/wrapping-config.ts` | Контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, демонстрационный пример трекера, процесс и FAQ. |
-| `lib/polishing-config.ts` | Контент `/polirovka-avto`: навигация, потребности квиза, проблемы, варианты работ, процесс, преимущества, FAQ. Цен нет — механика цены будет определена позже. |
+| `lib/polishing-config.ts` | Контент `/polirovka-avto`: навигация, внутренние рыночные ориентиры (`polishingMarketBenchmarks`, не выводятся), утверждённая клиентская сетка цен (`polishingPrices`), доп. услуги без цен, ответы квиза со связкой на услугу, проблемы, процесс, преимущества, FAQ. |
+| `lib/polishing-quiz.ts` | Чистые функции квиза полировки: ответ → услуга → ориентир, правила выбора, поля `package`/`displayedPrice` для `/api/lead`. |
 | `lib/wrapping-quiz.ts` | Типы состояния и чистый расчёт цены/срока для квиза оклейки (пакет или набор элементов, учёт `promotionEndsAt`). |
 | `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность пяти `utm_*` и `yclid` с сохранением первого значения каждого поля. |
 | `lib/marketing-events.ts` | Типизированная граница целей Яндекс Метрики с белым списком неперсональных параметров (`package`, `channel`). |
@@ -145,13 +146,18 @@ Privacy Policy и согласие у обеих форм.
 | --- | --- | --- |
 | `app/polirovka-avto/page.tsx` | Сборка страницы, metadata, canonical, OG и JSON-LD (`Service` + `FAQPage`) | server |
 | `app/polirovka-avto/opengraph-image.tsx` | Текстовый OG-визуал без цен | server |
-| `components/polishing/sections.tsx` | Hero (`/images/service-polishing.webp`), проблемы, варианты работ, контакты | server |
-| `components/polishing/quiz.tsx` | Модель → «Что хотите сделать?» (мультивыбор) → только телефон → `PolishingQuizResult` | client |
+| `components/polishing/sections.tsx` | Hero (`/images/service-polishing.webp`), проблемы, сетка цен `#prices` (5 цен «от» + оговорка + доп. услуги без цен), контакты | server |
+| `components/polishing/quiz.tsx` | Модель → «Что хотите получить?» → только телефон → `PolishingQuizResult`; цена в квизе не показывается | client |
 | `components/polishing/quiz-result.tsx` | Экран после успешной заявки; заменяемый блок для будущей механики цены | server-safe |
 | `components/polishing/works.tsx` | «Результаты наших работ»: только `category=polishing` из production manifest, lazy превью без автозапуска; без работ секция не рендерится | client |
 
-Якоря: `#top`, `#calculator`, `#problems`, `#works`, `#process`, `#contacts`, `#photo-calc`.
-В CRM: `vehicleModel`, `package` = «Полировка: <все выбранные задачи>», телефон,
+Якоря: `#top`, `#calculator`, `#problems`, `#prices`, `#works`, `#process`, `#contacts`, `#photo-calc`.
+Сетка цен (с 30.09.2026): локальная полировка элемента от 2 500 ₽, фары от 3 500 ₽,
+лёгкая полировка кузова от 18 000 ₽, восстановительная от 35 000 ₽, глубокая
+абразивная от 60 000 ₽ — ориентиры, не окончательная цена.
+В CRM: `vehicleModel`, `package` = «Полировка: <ответ> → <услуга>; …»,
+`displayedPrice` = ориентиры выбранных услуг через « + » (для «Не знаю — нужна
+оценка» цена не передаётся), телефон,
 UTM, yclid, `pagePath=/polirovka-avto`; `/api/lead` ставит `service=polirovka-avto`.
 Цели Метрики: только `polirovka_*` (см. `OLNOO_ARCHITECTURE.md`).
 

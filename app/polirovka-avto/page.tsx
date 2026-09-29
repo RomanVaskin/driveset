@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { PolishingQuiz } from '@/components/polishing/quiz'
-import { PolishingContacts, PolishingHero, PolishingProblems, PolishingWorkOptions } from '@/components/polishing/sections'
+import { PolishingContacts, PolishingHero, PolishingPrices, PolishingProblems } from '@/components/polishing/sections'
 import { PolishingWorks } from '@/components/polishing/works'
 import { WrappingBenefits } from '@/components/wrapping/benefits'
 import { WrappingFaq } from '@/components/wrapping/faq'
@@ -71,7 +71,7 @@ export default function PolishingPage() {
         <PolishingQuiz />
         <PolishingProblems />
         <PolishingWorks />
-        <PolishingWorkOptions />
+        <PolishingPrices />
         <WrappingProcess steps={polishingProcess} title="Как проходит работа" />
         <WrappingBenefits items={polishingBenefits} title="Почему выбирают DriveSet" />
         <WrappingFaq items={polishingFaq} />

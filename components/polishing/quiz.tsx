@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { submitLead } from '@/lib/lead-submission'
 import { trackMarketingEvent, type MarketingEventName } from '@/lib/marketing-events'
 import { polishingNeeds, type PolishingNeedId } from '@/lib/polishing-config'
+import { describePolishingSelection, polishingLeadFields, togglePolishingNeed } from '@/lib/polishing-quiz'
 import { PolishingQuizResult } from './quiz-result'
 
 type PolishingEvent = Extract<MarketingEventName, `polirovka_${string}`>
@@ -21,8 +22,7 @@ export function PolishingQuiz() {
   const [submitError, setSubmitError] = useState('')
   const tracked = useRef(new Set<PolishingEvent>())
 
-  // Selection order is irrelevant for the CRM; keep the catalogue order.
-  const needLabels = polishingNeeds.filter((item) => needIds.includes(item.id)).map((item) => item.label)
+  const selection = describePolishingSelection(needIds)
 
   function trackOnce(name: PolishingEvent) {
     if (tracked.current.has(name)) return
@@ -45,7 +45,7 @@ export function PolishingQuiz() {
 
   function toggleNeed(id: PolishingNeedId) {
     trackOnce('polirovka_quiz_start')
-    setNeedIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]))
+    setNeedIds((current) => togglePolishingNeed(current, id))
   }
 
   async function sendLead(event: React.FormEvent<HTMLFormElement>) {
@@ -60,7 +60,7 @@ export function PolishingQuiz() {
       phone: String(form.get('phone') ?? ''),
       contactChannel: 'phone',
       vehicleModel: car,
-      package: `Полировка: ${needLabels.join(', ')}`,
+      ...polishingLeadFields(selection),
       website: String(form.get('website') ?? ''),
     }, 'polirovka_lead_submit')
     setSending(false)
@@ -81,7 +81,7 @@ export function PolishingQuiz() {
           <div className="h-1 bg-secondary"><div className="h-full bg-champagne transition-[width] duration-300" style={{ width: `${submitted ? 100 : ((step + 1) / stepCount) * 100}%` }} /></div>
           <div className="p-6 sm:p-8 md:p-10">
             {submitted ? (
-              <PolishingQuizResult car={car} needs={needLabels} />
+              <PolishingQuizResult car={car} needs={selection.map((item) => item.intent)} />
             ) : (
               <>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Шаг {step + 1} из {stepCount}</p>
@@ -102,7 +102,7 @@ export function PolishingQuiz() {
                 )}
 
                 {step === 1 && (
-                  <Question title="Что хотите сделать?" hint="Можно выбрать несколько вариантов">
+                  <Question title="Что хотите получить?" hint="Можно добавить к кузову отдельный элемент или фары">
                     <div className="grid gap-2 sm:grid-cols-2">
                       {polishingNeeds.map((item) => {
                         const selected = needIds.includes(item.id)

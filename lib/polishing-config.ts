@@ -6,21 +6,66 @@
 export const polishingNav = [
   { label: 'Расчёт', href: '#calculator' },
   { label: 'Что решаем', href: '#problems' },
+  { label: 'Цены', href: '#prices' },
   { label: 'Работы', href: '#works' },
   { label: 'Процесс', href: '#process' },
 ] as const
 
-export type PolishingNeedId = 'gloss' | 'scratches' | 'wear' | 'sale' | 'local' | 'headlights' | 'consultation'
+/**
+ * Market benchmarks the client price grid was derived from (competitor
+ * research). Internal reference only — never rendered on the page.
+ */
+export const polishingMarketBenchmarks = [
+  { service: 'Локальный элемент (бампер, крыло, дверь)', range: '1 000–4 000 ₽', average: '~2 300 ₽', sources: 3 },
+  { service: 'Капот / крыша (крупный элемент)', range: '4 000 ₽', average: '4 000 ₽', sources: 1, note: 'данных мало' },
+  { service: 'Полировка / восстановление фар', range: '2 000–5 000 ₽', average: '~3 300 ₽', sources: 3 },
+  { service: 'Полировка бокового стекла', range: '3 000–7 000 ₽', average: '~5 000 ₽', sources: 2 },
+  { service: 'Полировка лобового стекла', range: '3 000–10 000 ₽', average: '~6 500 ₽', sources: 2 },
+  { service: 'Подготовка кузова перед полировкой (мойка + глина + обезжиривание)', range: '7 000–9 000 ₽', average: '~7 500 ₽', sources: 2 },
+  { service: 'Антиголограммная / лёгкая полировка (2 этапа, весь кузов)', range: '9 000–30 000 ₽', average: '~18 000 ₽', sources: 5 },
+  { service: 'Средняя восстановительная полировка (2–3 этапа)', range: '20 000–50 000 ₽', average: '~35 000 ₽', sources: 3 },
+  { service: 'Глубокая абразивная полировка (3 этапа, весь кузов)', range: '50 000–70 000 ₽', average: '~60 000 ₽', sources: 2 },
+  { service: 'Полировка после свежей покраски', range: '43 000–60 000 ₽', average: '~50 000 ₽', note: 'данных мало' },
+  { service: 'Полировка + керамическое покрытие', average: '35 000 ₽', note: 'данных мало' },
+] as const
 
-/** Quiz step 2. All needs can be combined, so the step is a multi-select. */
-export const polishingNeeds: readonly { id: PolishingNeedId; label: string }[] = [
-  { id: 'gloss', label: 'Вернуть блеск кузову' },
-  { id: 'scratches', label: 'Убрать мелкие царапины' },
-  { id: 'wear', label: 'Убрать следы эксплуатации' },
-  { id: 'sale', label: 'Подготовить автомобиль к продаже' },
-  { id: 'local', label: 'Локальная полировка' },
-  { id: 'headlights', label: 'Полировка фар' },
-  { id: 'consultation', label: 'Нужна консультация' },
+export type PolishingServiceId = 'local' | 'headlights' | 'light' | 'restorative' | 'deep'
+
+/** Approved client price grid: indicative «от» prices, not a final quote. */
+export const polishingPrices: readonly { id: PolishingServiceId; title: string; priceLabel: string }[] = [
+  { id: 'local', title: 'Локальная полировка элемента', priceLabel: 'от 2 500 ₽' },
+  { id: 'headlights', title: 'Полировка фар', priceLabel: 'от 3 500 ₽' },
+  { id: 'light', title: 'Лёгкая полировка кузова', priceLabel: 'от 18 000 ₽' },
+  { id: 'restorative', title: 'Восстановительная полировка кузова', priceLabel: 'от 35 000 ₽' },
+  { id: 'deep', title: 'Глубокая абразивная полировка', priceLabel: 'от 60 000 ₽' },
+] as const
+
+export const polishingPriceNote = 'Точная стоимость зависит от автомобиля, состояния ЛКП и объёма работ.'
+
+/** Shown without prices: no approved client price exists for them yet. */
+export const polishingExtraServices = [
+  'Капот / крыша',
+  'Полировка стекла',
+  'Подготовка кузова',
+  'Полировка после свежей покраски',
+  'Керамическое покрытие',
+] as const
+
+export type PolishingNeedId = 'gloss' | 'light-scratches' | 'defects' | 'element' | 'headlights' | 'estimate'
+
+/**
+ * Quiz step 2: the client describes the result, not the technique. `service`
+ * is an indicative UI classification, not a diagnosis of the paint; «Не знаю»
+ * deliberately has no service and no price. Whole-body levels (`body`) are
+ * mutually exclusive; element and headlights combine with them.
+ */
+export const polishingNeeds: readonly { id: PolishingNeedId; label: string; service?: PolishingServiceId; body?: true }[] = [
+  { id: 'gloss', label: 'Вернуть блеск кузову', service: 'light', body: true },
+  { id: 'light-scratches', label: 'Убрать мелкие царапины', service: 'restorative', body: true },
+  { id: 'defects', label: 'Убрать заметные царапины и дефекты', service: 'deep', body: true },
+  { id: 'element', label: 'Отполировать отдельный элемент', service: 'local' },
+  { id: 'headlights', label: 'Отполировать фары', service: 'headlights' },
+  { id: 'estimate', label: 'Не знаю — нужна оценка' },
 ] as const
 
 export const polishingProblems = [
@@ -34,16 +79,6 @@ export const polishingProblems = [
 
 export const polishingDepthNote =
   'Глубокие царапины и сколы до грунта или металла полировка может не убрать — что реально исправить, оценим на бесплатном осмотре.'
-
-export const polishingWorkOptions = [
-  { title: 'Полировка кузова', text: 'Восстановление блеска и глубины цвета по всему кузову.' },
-  { title: 'Локальная полировка', text: 'Работа с отдельными элементами или участками кузова.' },
-  { title: 'Полировка фар', text: 'Восстановление прозрачности оптики.' },
-  { title: 'Подготовка к продаже', text: 'Приводим кузов в аккуратный вид перед показом автомобиля покупателям.' },
-] as const
-
-export const polishingWorkOptionsNote =
-  'Состав работ и стоимость подбираем после осмотра: они зависят от автомобиля, состояния ЛКП и выбранных работ.'
 
 export const polishingProcess = [
   { title: 'Заявка', text: 'Оставляете модель автомобиля и задачу — менеджер связывается с вами.' },
@@ -73,7 +108,7 @@ export const polishingFaq = [
   },
   {
     question: 'Сколько стоит полировка?',
-    answer: 'Стоимость зависит от автомобиля, состояния ЛКП и выбранных работ. Оставьте заявку — рассчитаем стоимость и подтвердим её после бесплатного осмотра.',
+    answer: 'Ориентировочно — от 2 500 ₽ за локальную полировку элемента до от 60 000 ₽ за глубокую абразивную полировку кузова. Точная стоимость зависит от автомобиля, состояния ЛКП и объёма работ и подтверждается после бесплатного осмотра.',
   },
   { question: 'Нужна ли предоплата?', answer: 'Нет, запись проводится без предоплаты.' },
   { question: 'Можно ли забрать автомобиль и вернуть после работ?', answer: 'Да, DriveSet предлагает забор и возврат автомобиля.' },
