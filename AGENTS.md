@@ -49,6 +49,7 @@
 Контент внутренней страницы `/plan` живёт отдельно — в `lib/plan-config.ts`.
 Контент `/okleyka-avto` живёт отдельно — в `lib/wrapping-config.ts`.
 Контент `/polirovka-avto` живёт отдельно — в `lib/polishing-config.ts`.
+Контент `/himchistka-avto` живёт отдельно — в `lib/cleaning-config.ts`.
 Подтверждённые контакты хранятся в `lib/site-config.ts`; не выдумывать и не
 дополнять их неподтверждёнными идентификаторами.
 

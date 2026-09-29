@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { PolishingQuiz } from '@/components/polishing/quiz'
 import { PolishingContacts, PolishingHero, PolishingPrices, PolishingProblems } from '@/components/polishing/sections'
-import { PolishingWorks } from '@/components/polishing/works'
+import { PortfolioWorks } from '@/components/landing/portfolio-works'
 import { WrappingBenefits } from '@/components/wrapping/benefits'
 import { WrappingFaq } from '@/components/wrapping/faq'
 import { WrappingFinalCta } from '@/components/wrapping/final-cta'
@@ -70,7 +70,7 @@ export default function PolishingPage() {
         <PolishingHero />
         <PolishingQuiz />
         <PolishingProblems />
-        <PolishingWorks />
+        <PortfolioWorks category="polishing" description="Фото и видео автомобилей после полировки в DriveSet." itemLabel="полировке" />
         <PolishingPrices />
         <WrappingProcess steps={polishingProcess} title="Как проходит работа" />
         <WrappingBenefits items={polishingBenefits} title="Почему выбирают DriveSet" />

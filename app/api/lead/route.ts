@@ -103,6 +103,7 @@ function message(input: LeadInput) {
 const serviceByPage: Record<string, string> = {
   '/okleyka-avto': 'okleyka-avto',
   '/polirovka-avto': 'polirovka-avto',
+  '/himchistka-avto': 'himchistka-avto',
 }
 
 function crmEndpoint(): URL | null {

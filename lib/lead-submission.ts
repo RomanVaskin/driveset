@@ -18,7 +18,7 @@ export type LeadDraft = {
 /** `successEvent` lets each landing keep its own Metrika funnel; it fires only after `201 {ok:true}`. */
 export async function submitLead(
   draft: LeadDraft,
-  successEvent: Extract<MarketingEventName, 'lead_submit' | 'polirovka_lead_submit'> = 'lead_submit',
+  successEvent: Extract<MarketingEventName, 'lead_submit' | 'polirovka_lead_submit' | 'himchistka_lead_submit'> = 'lead_submit',
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const response = await fetch('/api/lead', {

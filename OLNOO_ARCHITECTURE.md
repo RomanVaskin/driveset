@@ -149,6 +149,7 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     `OLNOO_CRM_API_KEY`. Прямые поля CRM: name, phone, pagePath, пять UTM и
     `service`, который `/api/lead` выводит из проверенного `pagePath`
     (`/okleyka-avto` → `okleyka-avto`, `/polirovka-avto` → `polirovka-avto`,
+    `/himchistka-avto` → `himchistka-avto`,
     главная — пусто): так лиды посадочных различаются в колонке «Услуга» CRM;
     канал, автомобиль, услуга, цена, подарок, срок и yclid идут в `message`.
     Браузеру возвращается только `{ok:true}` или контролируемая ошибка.
@@ -177,6 +178,21 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     production manifest; подписи «до/после» не используются, пока в manifest
     нет реальных пар.
 
+18. **Посадочная химчистки и общие landing-компоненты (с 30.09.2026).**
+    `/himchistka-avto` собрана из `components/landing/*` (квиз `ServiceQuiz`,
+    hero/сетка/цифры/контакты, работы из manifest), на которые переведена и
+    `/polirovka-avto` без изменения её HTML. Контент — `cleaning-config.ts`,
+    цен нет. Квиз: модель → независимый мультивыбор (все варианты совместимы,
+    ни один не несёт цены) с текстовым уточнением для «Другое» →
+    только телефон → `CleaningQuizResult` (подтверждение и фото салона в
+    существующие Telegram/MAX; заменяемый блок для будущей механики цены).
+    Воронка: `himchistka_quiz_start` → `himchistka_car_selected` →
+    `himchistka_service_selected` → `himchistka_quiz_phone` →
+    `himchistka_lead_submit` (только после `201 {ok:true}`), каждая не чаще
+    одного раза за загрузку; цели оклейки и полировки не используются.
+    Блок «до/после» не выводится: в проекте нет реальных пар фото; реальные
+    работы — только `category=dry-cleaning` из production manifest.
+
 ## Деплой
 
 Автодеплой по push в `main`: `.github/workflows/deploy.yml` подключается по SSH
@@ -191,7 +207,7 @@ production-факты (сервер, путь, порт) — в `OLNOO_PROJECT_M
 - Один `<h1>` (Hero). Иерархия `<h2>/<h3>` по секциям.
 - `metadata` + Open Graph в `layout.tsx`; canonical на `driveset.ru`.
 - JSON-LD `AutoDetailing` в `app/page.tsx`.
-- `app/sitemap.ts` → `/sitemap.xml` с публичными страницами (`/`, `/okleyka-avto`, `/polirovka-avto`).
+- `app/sitemap.ts` → `/sitemap.xml` с публичными страницами (`/`, `/okleyka-avto`, `/polirovka-avto`, `/himchistka-avto`).
 - Все изображения с осмысленным `alt`, `lang="ru"`.
 
 ## Точки расширения (этап 2+)
