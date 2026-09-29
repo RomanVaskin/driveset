@@ -142,16 +142,32 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     видео без ссылки,
     авторизации, хранения заказов и backend.
 
-16. **OLNOO CRM.** Оба клиентских сценария используют `lib/lead-submission.ts`
+16. **OLNOO CRM.** Все клиентские сценарии используют `lib/lead-submission.ts`
     и один `POST /api/lead`. Route Handler проверяет разрешённые поля, длины,
     телефон и honeypot, фиксирует `project=driveset` и `source=Ads`, отправляет
     запрос в `/api/leads/inbound` с server-only `OLNOO_CRM_URL` и
-    `OLNOO_CRM_API_KEY`. Прямые поля CRM: name, phone, pagePath, пять UTM;
+    `OLNOO_CRM_API_KEY`. Прямые поля CRM: name, phone, pagePath, пять UTM и
+    `service`, который `/api/lead` выводит из проверенного `pagePath`
+    (`/okleyka-avto` → `okleyka-avto`, `/polirovka-avto` → `polirovka-avto`,
+    главная — пусто): так лиды посадочных различаются в колонке «Услуга» CRM;
     канал, автомобиль, услуга, цена, подарок, срок и yclid идут в `message`.
     Браузеру возвращается только `{ok:true}` или контролируемая ошибка.
     Частота и дубли ограничены памятью одного Node.js процесса; защита не
     переживает рестарт и не координирует несколько процессов. До production
     запуска форм нужен утверждённый текст политики и согласия на ПД.
+
+17. **Посадочная полировки (с 29.09.2026).** `/polirovka-avto` — отдельная
+    статическая страница; контент в `polishing-config.ts`, цен и акций нет
+    (механика цены будет определена позже). Квиз: модель → мультивыбор задач
+    (все задачи совместимы) → только телефон → `PolishingQuizResult`
+    (отдельный заменяемый блок). Своя воронка Метрики, не пересекающаяся с
+    оклейкой: `polirovka_quiz_start` (первый клик по CTA `#calculator` или
+    первое действие в квизе) → `polirovka_car_selected` → `polirovka_service_selected`
+    → `polirovka_quiz_phone` (показ шага телефона) → `polirovka_lead_submit`
+    (только после `201 {ok:true}`), каждая не чаще одного раза за загрузку.
+    «Результаты наших работ» — только реальные `category=polishing` из
+    production manifest; подписи «до/после» не используются, пока в manifest
+    нет реальных пар.
 
 ## Деплой
 
@@ -167,6 +183,7 @@ production-факты (сервер, путь, порт) — в `OLNOO_PROJECT_M
 - Один `<h1>` (Hero). Иерархия `<h2>/<h3>` по секциям.
 - `metadata` + Open Graph в `layout.tsx`; canonical на `driveset.ru`.
 - JSON-LD `AutoDetailing` в `app/page.tsx`.
+- `app/sitemap.ts` → `/sitemap.xml` с публичными страницами (`/`, `/okleyka-avto`, `/polirovka-avto`).
 - Все изображения с осмысленным `alt`, `lang="ru"`.
 
 ## Точки расширения (этап 2+)

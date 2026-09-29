@@ -6,7 +6,9 @@ import { useEffect, useState } from 'react'
 import { site } from '@/lib/site-config'
 import { wrappingNav } from '@/lib/wrapping-config'
 
-export function WrappingHeader() {
+type NavItem = { readonly label: string; readonly href: string }
+
+export function WrappingHeader({ nav = wrappingNav, pageLabel = 'оклейки' }: { nav?: readonly NavItem[]; pageLabel?: string } = {}) {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -33,8 +35,8 @@ export function WrappingHeader() {
           {site.name}
         </Link>
 
-        <nav className="hidden items-center gap-7 md:flex" aria-label="Навигация страницы оклейки">
-          {wrappingNav.map((item) => (
+        <nav className="hidden items-center gap-7 md:flex" aria-label={`Навигация страницы ${pageLabel}`}>
+          {nav.map((item) => (
             <a key={item.href} href={item.href} className={`text-sm transition-colors ${solid ? 'text-muted-foreground hover:text-foreground' : 'text-white/75 hover:text-white'}`}>
               {item.label}
             </a>
@@ -52,8 +54,8 @@ export function WrappingHeader() {
 
       {open && (
         <div className="border-t border-border bg-background md:hidden">
-          <nav className="flex flex-col gap-1 px-5 py-4" aria-label="Мобильная навигация страницы оклейки">
-            {wrappingNav.map((item) => (
+          <nav className="flex flex-col gap-1 px-5 py-4" aria-label={`Мобильная навигация страницы ${pageLabel}`}>
+            {nav.map((item) => (
               <a key={item.href} href={item.href} onClick={() => setOpen(false)} className="rounded-md px-3 py-3 text-foreground hover:bg-secondary">
                 {item.label}
               </a>

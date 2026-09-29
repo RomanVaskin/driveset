@@ -85,3 +85,22 @@ export function parsePortfolioManifest(value: unknown): PortfolioItem[] {
   if (manifest.version !== 1 || !Array.isArray(manifest.items)) return []
   return manifest.items.map(parseItem).filter((item): item is PortfolioItem => item !== null)
 }
+
+let manifestRequest: Promise<PortfolioItem[]> | null = null
+
+/** Shared browser fetch of the production portfolio manifest (one request per session). */
+export function loadPortfolioManifest(url: string): Promise<PortfolioItem[]> {
+  if (!manifestRequest) {
+    manifestRequest = fetch(url, { cache: 'no-store' })
+      .then((response) => {
+        if (!response.ok) throw new Error('Portfolio manifest is unavailable')
+        return response.json() as Promise<unknown>
+      })
+      .then(parsePortfolioManifest)
+      .catch((error) => {
+        manifestRequest = null
+        throw error
+      })
+  }
+  return manifestRequest
+}

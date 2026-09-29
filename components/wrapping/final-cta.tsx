@@ -1,15 +1,18 @@
 import { Camera } from 'lucide-react'
 import { ContactActions } from './contact-actions'
 
-export function WrappingFinalCta() {
+export function WrappingFinalCta({
+  title = 'Рассчитайте стоимость оклейки вашего автомобиля',
+  text = 'Узнайте цену и подарок после короткого расчёта, а точную стоимость — после бесплатного осмотра.',
+}: { title?: string; text?: string } = {}) {
   return (
     <section className="px-5 pb-20 md:pb-28 lg:px-8">
       <div className="section-dark mx-auto max-w-6xl overflow-hidden rounded-2xl border border-border p-7 shadow-card sm:p-10 md:p-14">
         <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">Следующий шаг</p>
-            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-5xl">Рассчитайте стоимость оклейки вашего автомобиля</h2>
-            <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">Узнайте цену и подарок после короткого расчёта, а точную стоимость — после бесплатного осмотра.</p>
+            <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-5xl">{title}</h2>
+            <p className="mt-5 max-w-2xl leading-relaxed text-muted-foreground">{text}</p>
             <a href="#calculator" className="mt-7 inline-flex rounded-md bg-champagne px-7 py-3.5 font-semibold text-graphite">Перейти к расчёту</a>
           </div>
           <ContactActions />

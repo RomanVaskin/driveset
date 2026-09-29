@@ -9,13 +9,15 @@ Production-карта файлов. Обновлять при любом изм�
 | `app/layout.tsx` | Root layout: шрифты (Manrope/Inter), `<html lang="ru">`, metadata, viewport, Open Graph, SEO и клиентский bootstrap маркетинга. |
 | `app/page.tsx` | Сборка лендинга + JSON-LD (`AutoDetailing`). Один `<h1>` живёт в Hero. |
 | `app/globals.css` | Tailwind v4, дизайн-токены премиальной тёмной темы. |
+| `app/sitemap.ts` | `/sitemap.xml`: `/`, `/okleyka-avto`, `/polirovka-avto` (без `/plan`). |
 | `lib/site-config.ts` | **Единый источник контента**: бренд, подтверждённые контакты и часы работы, навигация, услуги, trust-метрики, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
-| `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`. |
+| `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`; `loadPortfolioManifest()` — общий браузерный запрос manifest (используется `/polirovka-avto`). |
 | `lib/wrapping-config.ts` | Контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, демонстрационный пример трекера, процесс и FAQ. |
+| `lib/polishing-config.ts` | Контент `/polirovka-avto`: навигация, потребности квиза, проблемы, варианты работ, процесс, преимущества, FAQ. Цен нет — механика цены будет определена позже. |
 | `lib/wrapping-quiz.ts` | Типы состояния и чистый расчёт цены/срока для квиза оклейки (пакет или набор элементов, учёт `promotionEndsAt`). |
 | `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность пяти `utm_*` и `yclid` с сохранением первого значения каждого поля. |
 | `lib/marketing-events.ts` | Типизированная граница целей Яндекс Метрики с белым списком неперсональных параметров (`package`, `channel`). |
-| `lib/lead-submission.ts` | Общий клиентский POST обеих форм в `/api/lead`; собирает attribution/pagePath и отправляет `lead_submit` только после `201 {ok:true}`. |
+| `lib/lead-submission.ts` | Общий клиентский POST всех форм в `/api/lead`; собирает attribution/pagePath и только после `201 {ok:true}` отправляет цель успеха: по умолчанию `lead_submit`, для `/polirovka-avto` — `polirovka_lead_submit`. |
 | `components/marketing-bootstrap.tsx` | Клиентский сбор атрибуции на всех маршрутах, загрузка Метрики при наличии ID и просмотры страниц App Router. |
 | `app/api/lead/route.ts` | Единственный Node.js endpoint заявок: валидация, honeypot, ограничение частоты/дублей в памяти процесса, server-side POST в OLNOO CRM и минимальный ответ браузеру. |
 
@@ -131,6 +133,27 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 все выбранные элементы; без имени лид в CRM называется «Заявка DriveSet»); прямые каналы связи остаются отдельными действиями. `lead_submit`
 срабатывает только после успешного ответа API, затем `offer_view`. До production-запуска сбора ПД нужны утверждённая
 Privacy Policy и согласие у обеих форм.
+
+## Посадочная `/polirovka-avto`
+
+Отдельная индексируемая страница под Яндекс Директ (с 29.09.2026). Технически
+переиспользует секции оклейки через props (header, footer, процесс,
+преимущества, FAQ, финальный CTA, контакты), но без их текстов и коммерческой
+механики; без props эти секции рендерят `/okleyka-avto` как прежде.
+
+| Файл | Роль | Тип |
+| --- | --- | --- |
+| `app/polirovka-avto/page.tsx` | Сборка страницы, metadata, canonical, OG и JSON-LD (`Service` + `FAQPage`) | server |
+| `app/polirovka-avto/opengraph-image.tsx` | Текстовый OG-визуал без цен | server |
+| `components/polishing/sections.tsx` | Hero (`/images/service-polishing.webp`), проблемы, варианты работ, контакты | server |
+| `components/polishing/quiz.tsx` | Модель → «Что хотите сделать?» (мультивыбор) → только телефон → `PolishingQuizResult` | client |
+| `components/polishing/quiz-result.tsx` | Экран после успешной заявки; заменяемый блок для будущей механики цены | server-safe |
+| `components/polishing/works.tsx` | «Результаты наших работ»: только `category=polishing` из production manifest, lazy превью без автозапуска; без работ секция не рендерится | client |
+
+Якоря: `#top`, `#calculator`, `#problems`, `#works`, `#process`, `#contacts`, `#photo-calc`.
+В CRM: `vehicleModel`, `package` = «Полировка: <все выбранные задачи>», телефон,
+UTM, yclid, `pagePath=/polirovka-avto`; `/api/lead` ставит `service=polirovka-avto`.
+Цели Метрики: только `polirovka_*` (см. `OLNOO_ARCHITECTURE.md`).
 
 ## Конфиг
 

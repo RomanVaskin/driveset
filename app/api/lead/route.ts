@@ -99,6 +99,12 @@ function message(input: LeadInput) {
   ].filter(Boolean).join('\n')
 }
 
+/** CRM `service` column per landing, derived server-side from the validated pagePath. */
+const serviceByPage: Record<string, string> = {
+  '/okleyka-avto': 'okleyka-avto',
+  '/polirovka-avto': 'polirovka-avto',
+}
+
 function crmEndpoint(): URL | null {
   const configured = process.env.OLNOO_CRM_URL
   if (!configured || !process.env.OLNOO_CRM_API_KEY) return null
@@ -153,6 +159,7 @@ export async function POST(request: Request) {
         name: input.name || 'Заявка DriveSet',
         phone: input.phone,
         source: 'Ads',
+        service: serviceByPage[input.pagePath] ?? '',
         pagePath: input.pagePath,
         utm_source: input.utm_source,
         utm_medium: input.utm_medium,

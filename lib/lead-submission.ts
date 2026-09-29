@@ -1,5 +1,5 @@
 import { captureCampaignAttribution } from '@/lib/campaign-attribution'
-import { trackMarketingEvent } from '@/lib/marketing-events'
+import { trackMarketingEvent, type MarketingEventName } from '@/lib/marketing-events'
 
 export type LeadDraft = {
   name: string
@@ -15,7 +15,11 @@ export type LeadDraft = {
   website: string
 }
 
-export async function submitLead(draft: LeadDraft): Promise<{ ok: boolean; error?: string }> {
+/** `successEvent` lets each landing keep its own Metrika funnel; it fires only after `201 {ok:true}`. */
+export async function submitLead(
+  draft: LeadDraft,
+  successEvent: Extract<MarketingEventName, 'lead_submit' | 'polirovka_lead_submit'> = 'lead_submit',
+): Promise<{ ok: boolean; error?: string }> {
   try {
     const response = await fetch('/api/lead', {
       method: 'POST',
@@ -31,7 +35,7 @@ export async function submitLead(draft: LeadDraft): Promise<{ ok: boolean; error
     if (!result || typeof result !== 'object' || !('ok' in result) || result.ok !== true) {
       return { ok: false, error: 'Не удалось подтвердить отправку заявки.' }
     }
-    trackMarketingEvent('lead_submit')
+    trackMarketingEvent(successEvent)
     return { ok: true }
   } catch {
     return { ok: false, error: 'Нет связи с сервером. Попробуйте ещё раз.' }
