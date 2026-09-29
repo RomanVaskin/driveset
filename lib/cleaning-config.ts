@@ -21,17 +21,46 @@ export type CleaningNeedId =
   | 'stains'
   | 'other'
 
+export type CleaningServiceId =
+  | 'complex'
+  | 'seat'
+  | 'ceiling'
+  | 'floor'
+  | 'trunk'
+  | 'door-card'
+  | 'panel'
+  | 'mat'
+  | 'steering-wheel'
+  | 'ozonation'
+
+/** Approved client price grid: indicative «от» prices, not a final quote. */
+export const cleaningPrices: readonly { id: CleaningServiceId; title: string; priceLabel: string; unit?: string }[] = [
+  { id: 'complex', title: 'Комплексная химчистка салона', priceLabel: 'от 10 000 ₽' },
+  { id: 'seat', title: 'Химчистка одного сиденья', priceLabel: 'от 1 000 ₽', unit: 'за 1 шт.' },
+  { id: 'ceiling', title: 'Химчистка потолка', priceLabel: 'от 2 500 ₽' },
+  { id: 'floor', title: 'Химчистка пола / коврового покрытия', priceLabel: 'от 2 500 ₽' },
+  { id: 'trunk', title: 'Химчистка багажника', priceLabel: 'от 1 500 ₽' },
+  { id: 'door-card', title: 'Химчистка одной дверной карты', priceLabel: 'от 700 ₽', unit: 'за 1 шт.' },
+  { id: 'panel', title: 'Химчистка панели / пластика', priceLabel: 'от 1 000 ₽' },
+  { id: 'mat', title: 'Химчистка одного ворсового коврика', priceLabel: 'от 300 ₽', unit: 'за 1 шт.' },
+  { id: 'steering-wheel', title: 'Химчистка руля', priceLabel: 'от 1 500 ₽' },
+  { id: 'ozonation', title: 'Озонирование салона', priceLabel: 'от 1 500 ₽' },
+] as const
+
+export const cleaningPriceNote = 'Точная стоимость зависит от автомобиля, объёма работ и состояния салона.'
+
 /**
- * Quiz step 2, independent multi-select. No option carries a price, so any
- * combination is valid; «Полная химчистка» next to single zones is simply
- * passed to the CRM as the client chose it.
+ * Quiz step 2, independent multi-select. `service` links an answer to a price
+ * row only where the wording matches without interpretation. Not linked on
+ * purpose: «Сиденья» (the price is per one seat, the quiz does not ask how
+ * many) and «Удаление запаха» (ozonation is one method, not the same service).
  */
-export const cleaningNeeds: readonly { id: CleaningNeedId; label: string }[] = [
-  { id: 'full', label: 'Полная химчистка' },
+export const cleaningNeeds: readonly { id: CleaningNeedId; label: string; service?: CleaningServiceId }[] = [
+  { id: 'full', label: 'Полная химчистка', service: 'complex' },
   { id: 'seats', label: 'Сиденья' },
-  { id: 'ceiling', label: 'Потолок' },
-  { id: 'floor', label: 'Пол / ковролин' },
-  { id: 'trunk', label: 'Багажник' },
+  { id: 'ceiling', label: 'Потолок', service: 'ceiling' },
+  { id: 'floor', label: 'Пол / ковролин', service: 'floor' },
+  { id: 'trunk', label: 'Багажник', service: 'trunk' },
   { id: 'odor', label: 'Удаление запаха' },
   { id: 'pet-hair', label: 'Шерсть животных' },
   { id: 'stains', label: 'Сложные пятна' },

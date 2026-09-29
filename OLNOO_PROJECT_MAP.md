@@ -14,7 +14,8 @@ Production-карта файлов. Обновлять при любом изм�
 | `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`; `loadPortfolioManifest()` — общий браузерный запрос manifest (используется `/polirovka-avto`). |
 | `lib/wrapping-config.ts` | Контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, демонстрационный пример трекера, процесс и FAQ. |
 | `lib/polishing-config.ts` | Контент `/polirovka-avto`: навигация, внутренние рыночные ориентиры (`polishingMarketBenchmarks`, не выводятся), утверждённая клиентская сетка цен (`polishingPrices`), доп. услуги без цен, ответы квиза со связкой на услугу, проблемы, процесс, преимущества, FAQ. |
-| `lib/cleaning-config.ts` | Контент `/himchistka-avto`: навигация, варианты квиза (мультивыбор, «Другое» с уточнением до 60 символов), зоны, процесс, преимущества, FAQ. Цен нет. |
+| `lib/cleaning-config.ts` | Контент `/himchistka-avto`: навигация, утверждённая сетка цен (`cleaningPrices`, 10 позиций «от», три — «за 1 шт.»), варианты квиза (мультивыбор, «Другое» с уточнением до 60 символов, связь с позицией прайса только при точном совпадении), зоны, процесс, преимущества, FAQ. |
+| `lib/cleaning-quiz.ts` | Чистые функции квиза химчистки: ответ → позиция прайса → ориентир, поля `package`/`displayedPrice` для `/api/lead`. |
 | `lib/polishing-quiz.ts` | Чистые функции квиза полировки: ответ → услуга → ориентир, правила выбора, поля `package`/`displayedPrice` для `/api/lead`. |
 | `lib/wrapping-quiz.ts` | Типы состояния и чистый расчёт цены/срока для квиза оклейки (пакет или набор элементов, учёт `promotionEndsAt`). |
 | `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность пяти `utm_*` и `yclid` с сохранением первого значения каждого поля. |
@@ -131,7 +132,7 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 Якоря: `#top`, `#packages`, `#calculator`, `#works`, `#process`, `#photo-calc`.
 Расчёт работает полностью в браузере. С 28.09.2026 цена и подарки
 показываются только после успешной отправки имени/телефона в CRM через
-`/api/lead` (только телефон; лимит поля `package` — 200 символов, чтобы вместить
+`/api/lead` (только телефон; лимит поля `package` — 320 символов, чтобы вместить
 все выбранные элементы; без имени лид в CRM называется «Заявка DriveSet»); прямые каналы связи остаются отдельными действиями. `lead_submit`
 срабатывает только после успешного ответа API, затем `offer_view`. До production-запуска сбора ПД нужны утверждённая
 Privacy Policy и согласие у обеих форм.
@@ -145,8 +146,8 @@ Privacy Policy и согласие у обеих форм.
 
 | Файл | Роль | Тип |
 | --- | --- | --- |
-| `components/landing/service-quiz.tsx` | Общий квиз посадочных услуг: модель → мультивыбор (правила выбора, опциональное «Другое» с текстом) → только телефон → заменяемый блок результата; воронка `<prefix>_*` с защитой от дублей | client |
-| `components/landing/sections.tsx` | Общие секции: `LandingHero`, `CardGrid`, `TrustStrip` (`trustStats`), `LandingContacts` | server |
+| `components/landing/service-quiz.tsx` | Общий квиз посадочных услуг: модель → мультивыбор (правила выбора, опциональное «Другое» с текстом, опциональный ориентир цены рядом с выбранным вариантом) → только телефон → заменяемый блок результата; воронка `<prefix>_*` с защитой от дублей | client |
+| `components/landing/sections.tsx` | Общие секции: `LandingHero`, `CardGrid`, `PriceList` (сетка цен `#prices`, опциональная единица «за 1 шт.» и доп. услуги), `TrustStrip` (`trustStats`), `LandingContacts` | server |
 | `components/landing/portfolio-works.tsx` | «Результаты наших работ» для одной категории production manifest (lazy превью, без автозапуска, без подписей «до/после»; без работ не рендерится) | client |
 | `app/polirovka-avto/page.tsx` | Сборка страницы, metadata, canonical, OG и JSON-LD (`Service` + `FAQPage`) | server |
 | `app/polirovka-avto/opengraph-image.tsx` | Текстовый OG-визуал без цен | server |
@@ -172,13 +173,22 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 
 | Файл | Роль | Тип |
 | --- | --- | --- |
-| `app/himchistka-avto/page.tsx` | Сборка: hero (`/images/service-cleaning.webp`) → квиз → `TrustStrip` → «Что можно очистить» → работы `dry-cleaning` → процесс → преимущества → FAQ → контакты → финальный CTA; metadata, canonical, OG, JSON-LD | server |
+| `app/himchistka-avto/page.tsx` | Сборка: hero (`/images/service-cleaning.webp`) → квиз → `TrustStrip` → «Что можно очистить» → «Стоимость химчистки» → работы `dry-cleaning` → процесс → преимущества → FAQ → контакты → финальный CTA; metadata, canonical, OG, JSON-LD | server |
 | `app/himchistka-avto/opengraph-image.tsx` | Текстовый OG-визуал без цен | server |
 | `components/cleaning/quiz.tsx` | «Модель автомобиля» → «Что нужно сделать?» (мультивыбор, «Другое» + текст) → «Получите расчёт стоимости химчистки» | client |
 | `components/cleaning/quiz-result.tsx` | Экран после успешной заявки: подтверждение и фото салона в Telegram/MAX (существующие каналы); заменяемый блок для будущей механики цены | server-safe |
 
-Якоря: `#top`, `#calculator`, `#zones`, `#works`, `#process`, `#contacts`, `#photo-calc`.
-В CRM: `vehicleModel`, `package` = «Химчистка: <все выбранные варианты>, Другое: <текст>»,
+Якоря: `#top`, `#calculator`, `#zones`, `#prices`, `#works`, `#process`, `#contacts`, `#photo-calc`.
+Сетка цен `#prices` (с 30.09.2026, `PriceList` как у полировки): комплексная
+химчистка салона от 10 000 ₽; одно сиденье от 1 000 ₽ за 1 шт.; потолок от 2 500 ₽;
+пол / ковровое покрытие от 2 500 ₽; багажник от 1 500 ₽; одна дверная карта от
+700 ₽ за 1 шт.; панель / пластик от 1 000 ₽; один ворсовый коврик от 300 ₽ за 1 шт.;
+руль от 1 500 ₽; озонирование салона от 1 500 ₽. Карточка химчистки на главной —
+«от 10 000 ₽». Связь квиза с прайсом (ориентир виден рядом с выбранным вариантом):
+«Полная химчистка» → комплексная, «Потолок», «Пол / ковролин», «Багажник» → свои
+позиции; «Сиденья» (прайс за 1 шт.) и «Удаление запаха» (≠ озонирование) не связаны.
+В CRM: `vehicleModel`, `package` = «Химчистка: <ответ> → <позиция прайса>; <ответ без
+позиции>; Другое: <текст>», `displayedPrice` = ориентиры связанных ответов через « + »,
 телефон, UTM, yclid, `pagePath=/himchistka-avto`; `/api/lead` ставит `service=himchistka-avto`.
 Цели Метрики: только `himchistka_*`.
 

@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import { CleaningQuiz } from '@/components/cleaning/quiz'
 import { PortfolioWorks } from '@/components/landing/portfolio-works'
-import { CardGrid, LandingContacts, LandingHero, TrustStrip } from '@/components/landing/sections'
+import { CardGrid, LandingContacts, LandingHero, PriceList, TrustStrip } from '@/components/landing/sections'
 import { WrappingBenefits } from '@/components/wrapping/benefits'
 import { WrappingFaq } from '@/components/wrapping/faq'
 import { WrappingFinalCta } from '@/components/wrapping/final-cta'
 import { WrappingFooter } from '@/components/wrapping/footer'
 import { WrappingHeader } from '@/components/wrapping/header'
 import { WrappingProcess } from '@/components/wrapping/process'
-import { cleaningBenefits, cleaningFaq, cleaningNav, cleaningProcess, cleaningZones, cleaningZonesNote } from '@/lib/cleaning-config'
+import { cleaningBenefits, cleaningFaq, cleaningNav, cleaningPriceNote, cleaningPrices, cleaningProcess, cleaningZones, cleaningZonesNote } from '@/lib/cleaning-config'
 import { site } from '@/lib/site-config'
 
 const title = 'Химчистка салона автомобиля в Москве'
@@ -76,6 +76,7 @@ export default function CleaningPage() {
         <CleaningQuiz />
         <TrustStrip />
         <CardGrid id="zones" eyebrow="Что входит" title="Что можно очистить" items={cleaningZones} note={cleaningZonesNote} />
+        <PriceList title="Стоимость химчистки" items={cleaningPrices} note={cleaningPriceNote} />
         <PortfolioWorks category="dry-cleaning" description="Фото и видео салонов после химчистки в DriveSet." itemLabel="химчистке" />
         <WrappingProcess steps={cleaningProcess} title="Как проходит химчистка" />
         <WrappingBenefits items={cleaningBenefits} title="Удобно записаться и забрать автомобиль" />

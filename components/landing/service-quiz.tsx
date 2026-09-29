@@ -21,6 +21,8 @@ export type ServiceQuizProps<Id extends string> = {
   options: readonly ServiceQuizOption<Id>[]
   /** Selection rules; default is an independent multi-select. */
   toggle?: (current: readonly Id[], id: Id) => Id[]
+  /** Indicative price shown next to a selected option (and sent to the CRM by `leadFields`). */
+  priceFor?: (id: Id) => string | undefined
   /** Option that reveals a free-text clarification sent to the CRM. */
   otherOption?: { id: Id; maxLength: number; placeholder: string }
   phoneTitle: string
@@ -46,6 +48,7 @@ export function ServiceQuiz<Id extends string>({
   needsHint,
   options,
   toggle = defaultToggle,
+  priceFor,
   otherOption,
   phoneTitle,
   phoneText,
@@ -155,6 +158,7 @@ export function ServiceQuiz<Id extends string>({
                           <button key={item.id} type="button" aria-pressed={selected} onClick={() => toggleNeed(item.id)} className={`flex min-h-14 items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold transition-colors ${selected ? 'border-champagne bg-champagne/10' : 'border-border bg-background hover:border-champagne/50'}`}>
                             <span className={`flex size-5 shrink-0 items-center justify-center rounded border ${selected ? 'border-champagne bg-champagne text-graphite' : 'border-border'}`}>{selected && <Check className="size-3.5" />}</span>
                             {item.label}
+                            {selected && priceFor?.(item.id) && <span className="ml-auto shrink-0 font-display text-champagne">{priceFor(item.id)}</span>}
                           </button>
                         )
                       })}

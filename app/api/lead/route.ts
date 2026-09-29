@@ -16,7 +16,7 @@ const fieldLimits = {
   vehicleMake: 60,
   vehicleModel: 80,
   vehicleYear: 4,
-  package: 200,
+  package: 320,
   displayedPrice: 80,
   gift: 100,
   timing: 80,

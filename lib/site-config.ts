@@ -82,7 +82,7 @@ export const services: Service[] = [
       'Глубокая очистка салона, удаление загрязнений, пятен и посторонних запахов.',
     image: '/images/service-cleaning.webp',
     imageAlt: 'Профессиональная химчистка салона автомобиля в детейлинг-центре DriveSet',
-    price: 'от 5 000 ₽',
+    price: 'от 10 000 ₽',
     href: '#lead',
     cta: 'Рассчитать стоимость',
   },
