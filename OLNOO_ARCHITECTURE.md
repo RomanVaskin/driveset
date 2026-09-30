@@ -94,8 +94,9 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     summary, без цены. Логика — `lib/wrapping-quiz.ts` (`hasGiftStep`,
     `showsPromotion`, `quizLeadFields`).
     Цены с 01.10.2026: `front` «Зоны риска (передняя часть)» от 50 000 ₽,
-    `full-ppf` от 150 000 ₽, `color` от 150 000 ₽, матовая PPF 230 000 ₽,
-    отдельные элементы — по прайсу `elementPrices`.
+    `full-ppf` от 150 000 ₽, `color` от 150 000 ₽, `matte-ppf` от 150 000 ₽
+    (с 01.10.2026; акция на матовую PPF не распространяется); отдельные
+    элементы (`elementPrices`) — только перечень, без цен.
     Акция: −10 000 ₽ только на полную оклейку PPF, окно
     `promotionStartsAt`–`promotionEndsAt` (01.10.2026 00:00 – 15.10.2026
     23:59 МСК) в `wrapping-config.ts`; цена не пересчитывается, скидка

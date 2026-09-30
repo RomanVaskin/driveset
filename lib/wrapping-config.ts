@@ -64,8 +64,8 @@ export const wrappingPackages: readonly WrappingPackage[] = [
   {
     id: 'matte-ppf',
     title: 'Полный кузов — матовый PPF',
-    price: 230000,
-    priceLabel: 'от 230 000 ₽',
+    price: 150000,
+    priceLabel: 'от 150 000 ₽',
     duration: '3–5 дней',
     description: 'Защита всего кузова с ровным матовым визуальным эффектом.',
   },
@@ -97,19 +97,15 @@ export const timingOptions = [
 
 export type ElementPriceId = 'hood' | 'bumper' | 'roof' | 'fender' | 'headlights' | 'windshield' | 'chrome-delete'
 
-export const elementPrices: readonly {
-  id: ElementPriceId
-  title: string
-  price: number
-  priceLabel: string
-}[] = [
-  { id: 'hood', title: 'Капот', price: 20000, priceLabel: 'от 20 000 ₽' },
-  { id: 'bumper', title: 'Передний бампер', price: 22000, priceLabel: 'от 22 000 ₽' },
-  { id: 'roof', title: 'Крыша', price: 22000, priceLabel: 'от 22 000 ₽' },
-  { id: 'fender', title: 'Переднее крыло', price: 12000, priceLabel: 'от 12 000 ₽' },
-  { id: 'headlights', title: 'Фары', price: 7000, priceLabel: 'от 7 000 ₽' },
-  { id: 'windshield', title: 'Защита лобового стекла', price: 30000, priceLabel: 'от 30 000 ₽' },
-  { id: 'chrome-delete', title: 'Антихром', price: 20000, priceLabel: 'от 20 000 ₽' },
+/** Elements available separately; shown on the page as a list without prices. */
+export const elementPrices: readonly { id: ElementPriceId; title: string }[] = [
+  { id: 'hood', title: 'Капот' },
+  { id: 'bumper', title: 'Передний бампер' },
+  { id: 'roof', title: 'Крыша' },
+  { id: 'fender', title: 'Переднее крыло' },
+  { id: 'headlights', title: 'Фары' },
+  { id: 'windshield', title: 'Защита лобового стекла' },
+  { id: 'chrome-delete', title: 'Антихром' },
 ] as const
 
 /** Gifts for full-body PPF only (one of them, chosen in the quiz). */

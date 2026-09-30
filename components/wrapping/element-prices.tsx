@@ -1,4 +1,4 @@
-import { elementPrices, priceDisclaimer } from '@/lib/wrapping-config'
+import { elementPrices } from '@/lib/wrapping-config'
 
 export function ElementPrices() {
   return (
@@ -7,16 +7,12 @@ export function ElementPrices() {
         <div>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-champagne">Отдельные элементы</p>
           <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-balance md:text-5xl">Защитите только нужную зону</h2>
-          <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{priceDisclaimer}</p>
         </div>
-        <dl className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
+        <ul className="overflow-hidden rounded-2xl border border-border bg-card shadow-soft">
           {elementPrices.map((item) => (
-            <div key={item.id} className="flex items-center justify-between gap-4 border-b border-border px-5 py-4 last:border-b-0 sm:px-6">
-              <dt className="font-medium">{item.title}</dt>
-              <dd className="shrink-0 font-display font-bold text-champagne">{item.priceLabel}</dd>
-            </div>
+            <li key={item.id} className="border-b border-border px-5 py-4 font-medium last:border-b-0 sm:px-6">{item.title}</li>
           ))}
-        </dl>
+        </ul>
       </div>
     </section>
   )
