@@ -35,9 +35,9 @@ export type PolishingServiceId = 'local' | 'headlights' | 'light' | 'restorative
 export const polishingPrices: readonly { id: PolishingServiceId; title: string; priceLabel: string }[] = [
   { id: 'local', title: 'Локальная полировка элемента', priceLabel: 'от 2 500 ₽' },
   { id: 'headlights', title: 'Полировка фар', priceLabel: 'от 3 500 ₽' },
-  { id: 'light', title: 'Лёгкая полировка кузова', priceLabel: 'от 18 000 ₽' },
-  { id: 'restorative', title: 'Восстановительная полировка кузова', priceLabel: 'от 35 000 ₽' },
-  { id: 'deep', title: 'Глубокая абразивная полировка', priceLabel: 'от 60 000 ₽' },
+  { id: 'light', title: 'Лёгкая полировка кузова', priceLabel: 'от 10 000 ₽' },
+  { id: 'restorative', title: 'Восстановительная полировка кузова', priceLabel: 'от 20 000 ₽' },
+  { id: 'deep', title: 'Глубокая абразивная полировка', priceLabel: 'от 30 000 ₽' },
 ] as const
 
 export const polishingPriceNote = 'Точная стоимость зависит от автомобиля, состояния ЛКП и объёма работ.'
@@ -56,13 +56,13 @@ export type PolishingNeedId = 'gloss' | 'light-scratches' | 'defects' | 'element
 /**
  * Quiz step 2: the client describes the result, not the technique. `service`
  * is an indicative UI classification, not a diagnosis of the paint; «Не знаю»
- * deliberately has no service and no price. Whole-body levels (`body`) are
- * mutually exclusive; element and headlights combine with them.
+ * deliberately has no service and no price. Independent multi-select: any
+ * answers can be combined.
  */
-export const polishingNeeds: readonly { id: PolishingNeedId; label: string; service?: PolishingServiceId; body?: true }[] = [
-  { id: 'gloss', label: 'Вернуть блеск кузову', service: 'light', body: true },
-  { id: 'light-scratches', label: 'Убрать мелкие царапины', service: 'restorative', body: true },
-  { id: 'defects', label: 'Убрать заметные царапины и дефекты', service: 'deep', body: true },
+export const polishingNeeds: readonly { id: PolishingNeedId; label: string; service?: PolishingServiceId }[] = [
+  { id: 'gloss', label: 'Вернуть блеск кузову', service: 'light' },
+  { id: 'light-scratches', label: 'Убрать мелкие царапины', service: 'restorative' },
+  { id: 'defects', label: 'Убрать заметные царапины и дефекты', service: 'deep' },
   { id: 'element', label: 'Отполировать отдельный элемент', service: 'local' },
   { id: 'headlights', label: 'Отполировать фары', service: 'headlights' },
   { id: 'estimate', label: 'Не знаю — нужна оценка' },
@@ -108,7 +108,7 @@ export const polishingFaq = [
   },
   {
     question: 'Сколько стоит полировка?',
-    answer: 'Ориентировочно — от 2 500 ₽ за локальную полировку элемента до от 60 000 ₽ за глубокую абразивную полировку кузова. Точная стоимость зависит от автомобиля, состояния ЛКП и объёма работ и подтверждается после бесплатного осмотра.',
+    answer: 'Ориентировочно — от 2 500 ₽ за локальную полировку элемента до от 30 000 ₽ за глубокую абразивную полировку кузова. Точная стоимость зависит от автомобиля, состояния ЛКП и объёма работ и подтверждается после бесплатного осмотра.',
   },
   { question: 'Нужна ли предоплата?', answer: 'Нет, запись проводится без предоплаты.' },
   { question: 'Можно ли забрать автомобиль и вернуть после работ?', answer: 'Да, DriveSet предлагает забор и возврат автомобиля.' },
