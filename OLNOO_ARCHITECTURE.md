@@ -161,8 +161,12 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     `OLNOO_CRM_API_KEY`. Прямые поля CRM: name, phone, pagePath, пять UTM и
     `service`, который `/api/lead` выводит из проверенного `pagePath`
     (`/okleyka-avto` → `okleyka-avto`, `/polirovka-avto` → `polirovka-avto`,
-    `/himchistka-avto` → `himchistka-avto`,
-    главная — пусто): так лиды посадочных различаются в колонке «Услуга» CRM;
+    `/himchistka-avto` → `himchistka-avto`; на главной `/` — по выбранной
+    в форме услуге из `services`: оклейка → `okleyka-avto`, полировка →
+    `polirovka-avto`, химчистка → `himchistka-avto`, «Другое / не знаю» или
+    ничего → `Other`, значение, которое CRM уже получает от olnoo.com;
+    whitelist на сервере, `service` с клиента не принимается): так лиды
+    различаются в колонке «Услуга» CRM;
     канал, автомобиль, услуга, цена, подарок, срок и yclid идут в `message`.
     Браузеру возвращается только `{ok:true}` или контролируемая ошибка.
     Частота и дубли ограничены памятью одного Node.js процесса; защита не

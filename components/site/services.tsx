@@ -35,14 +35,9 @@ export function Services() {
               )}
             </div>
             <div className={`flex flex-1 flex-col ${service.featured ? 'p-7 md:justify-center md:p-10' : 'p-6 md:p-7'}`}>
-              <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h3 className={`font-display font-bold tracking-tight ${service.featured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}>
-                  {service.title}
-                </h3>
-                <span className="shrink-0 rounded-full border border-champagne/30 bg-champagne/10 px-3 py-1 text-xs font-semibold whitespace-nowrap text-champagne">
-                  {service.price}
-                </span>
-              </div>
+              <h3 className={`font-display font-bold tracking-tight ${service.featured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}>
+                {service.title}
+              </h3>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
                 {service.description}
               </p>

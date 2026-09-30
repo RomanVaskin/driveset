@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { NextResponse } from 'next/server'
+import { services } from '@/lib/site-config'
 
 export const runtime = 'nodejs'
 
@@ -106,6 +107,24 @@ const serviceByPage: Record<string, string> = {
   '/himchistka-avto': 'himchistka-avto',
 }
 
+/**
+ * Homepage form: `package` is the chosen service title from `services`; only
+ * those titles map to a landing slug. Anything else («Другое / не знаю», nothing
+ * chosen) is a general request — `Other`, the value the OLNOO CRM already
+ * receives from olnoo.com.
+ */
+const serviceByHomeChoice: Record<string, string> = {
+  wrapping: 'okleyka-avto',
+  polishing: 'polirovka-avto',
+  cleaning: 'himchistka-avto',
+}
+
+function crmService(input: LeadInput) {
+  if (input.pagePath !== '/') return serviceByPage[input.pagePath] ?? ''
+  const choice = services.find((item) => item.title === input.package)
+  return (choice && serviceByHomeChoice[choice.id]) || 'Other'
+}
+
 function crmEndpoint(): URL | null {
   const configured = process.env.OLNOO_CRM_URL
   if (!configured || !process.env.OLNOO_CRM_API_KEY) return null
@@ -160,7 +179,7 @@ export async function POST(request: Request) {
         name: input.name || 'Заявка DriveSet',
         phone: input.phone,
         source: 'Ads',
-        service: serviceByPage[input.pagePath] ?? '',
+        service: crmService(input),
         pagePath: input.pagePath,
         utm_source: input.utm_source,
         utm_medium: input.utm_medium,
