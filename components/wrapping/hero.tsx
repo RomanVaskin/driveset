@@ -23,7 +23,7 @@ export function WrappingHero() {
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/70 md:text-xl">
             Защитите кузов от сколов, царапин и реагентов
           </p>
-          <p className="mt-4 text-sm font-semibold text-champagne">Подарок на выбор при заказе</p>
+          <p className="mt-4 text-sm font-semibold text-champagne">Подарок на выбор при полной оклейке PPF</p>
 
           <div className="mt-7 grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
             <div className="bg-card p-4 sm:p-5">

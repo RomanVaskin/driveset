@@ -122,7 +122,7 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 | `components/wrapping/header.tsx` | Sticky header и mobile menu | client |
 | `components/wrapping/hero.tsx` | H1, ценовые якоря, CTA (включая `photo_calc_click`), trust-факты и реальный poster | server + client media/actions |
 | `components/wrapping/packages.tsx`, `promotion.tsx` | Основные пакеты (с 01.10.2026: зоны риска от 50 000 ₽, полная PPF от 150 000 ₽, цветная от 150 000 ₽) и акция −10 000 ₽ на полную PPF 01.10–15.10.2026 | server |
-| `components/wrapping/quiz.tsx` | С 28.09.2026: модель → что оклеить (3 варианта, множественный выбор элементов) → контакт (с 01.10.2026: «Персональное предложение готово», канал телефон/Telegram/MAX, CTA «Получить расчёт») → после успешной заявки цена, подарки и преимущества; свободный ввод скрыт от записи Вебвизора; цели `quiz_start`, `car_selected`, `package_selected`, `elements_selected`, `quiz_phone`, `offer_view` | client |
+| `components/wrapping/quiz.tsx` | С 01.10.2026 lead-форма без показа цены: автомобиль → услуга (зоны риска / полная PPF / цветная) → подарок (только полная PPF, один из `gifts`) → контакт «Остался последний шаг» (канал телефон/Telegram/MAX, CTA «Получить расчёт + подарок» / «Получить расчёт») → «Заявка отправлена»; логика в `lib/wrapping-quiz.ts`; свободный ввод скрыт от записи Вебвизора; цели `quiz_start`, `car_selected`, `package_selected`, `quiz_phone`, `lead_submit` | client |
 | `components/wrapping/contact-actions.tsx` | Telegram/телефон; MAX копирует подтверждённый номер без выдуманного URL и отмечает клик; CTA по фото отмечает `photo_calc_click`; WhatsApp скрыт из UI | client |
 | `components/wrapping/works.tsx`, `works-client.tsx` | Только runtime `category=wrapping`; WebP posters lazy, MP4 только после открытия | server + client |
 | `components/wrapping/tracker-preview.tsx` | Статический коммерческий пример будущего персонального онлайн-трекера после преимуществ; без ссылки и backend | server |
@@ -130,11 +130,10 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 | `components/wrapping/footer.tsx` | Контакты и навигация страницы | server |
 
 Якоря: `#top`, `#packages`, `#calculator`, `#works`, `#process`, `#photo-calc`.
-Расчёт работает полностью в браузере. С 28.09.2026 цена и подарки
-показываются только после успешной отправки имени/телефона в CRM через
-`/api/lead` (телефон + выбранный канал телефон/Telegram/MAX; лимит поля `package` — 320 символов, чтобы вместить
-все выбранные элементы; без имени лид в CRM называется «Заявка DriveSet»); прямые каналы связи остаются отдельными действиями. `lead_submit`
-срабатывает только после успешного ответа API, затем `offer_view`. До production-запуска сбора ПД нужны утверждённая
+Квиз — lead-форма: с 01.10.2026 рассчитанная цена не показывается; заявка уходит в CRM через
+`/api/lead` (телефон + выбранный канал телефон/Telegram/MAX, автомобиль, пакет, подарок для полной PPF, строка акции,
+если была показана; без имени лид в CRM называется «Заявка DriveSet»); прямые каналы связи остаются отдельными
+действиями. `lead_submit` срабатывает только после успешного ответа API. До production-запуска сбора ПД нужны утверждённая
 Privacy Policy и согласие у обеих форм.
 
 ## Посадочная `/polirovka-avto`

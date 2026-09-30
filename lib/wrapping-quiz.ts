@@ -1,69 +1,50 @@
+import type { LeadDraft } from '@/lib/lead-submission'
 import {
-  elementPrices,
+  gifts,
   isPromotionActive,
+  promotionBadge,
   wrappingPackages,
-  otherElementsOption,
-  type ElementPriceId,
+  type GiftId,
   type QuizPackageId,
 } from '@/lib/wrapping-config'
 
-export type QuizElementId = ElementPriceId | typeof otherElementsOption.id
-
+/**
+ * The quiz is a lead form, not a calculator: it collects what the manager needs
+ * for a personal quote and never shows a computed price.
+ */
 export type QuizAnswers = {
   /** Free text as typed by the user, e.g. «Geely Monjaro» or «Monjaro». */
   car: string
   packageId: QuizPackageId | ''
-  elementIds: QuizElementId[]
-}
-
-export type QuoteResult = {
-  packageTitle: string
-  priceLabel: string | null
-  promo: boolean
-  duration: string
-  /** Selected elements with their own price; null price = confirmed after inspection. */
-  items?: readonly { title: string; priceLabel: string | null }[]
+  giftId: GiftId | ''
 }
 
 export const initialQuizAnswers: QuizAnswers = {
   car: '',
   packageId: '',
-  elementIds: [],
+  giftId: '',
 }
 
-function rub(value: number) {
-  return `от ${value.toLocaleString('ru-RU').replace(/\s/g, ' ')} ₽`
+/** Gifts belong to full PPF only; zones of risk and colour wrap never get one. */
+export function hasGiftStep(packageId: QuizAnswers['packageId']) {
+  return packageId === 'full-ppf'
 }
 
-export function getQuoteResult(answers: QuizAnswers, now: Date = new Date()): QuoteResult | null {
-  if (!answers.packageId) return null
+/** The −10 000 ₽ promotion is independent of the gift: full PPF and its date window only. */
+export function showsPromotion(packageId: QuizAnswers['packageId'], now: Date = new Date()) {
+  return packageId === 'full-ppf' && isPromotionActive(now)
+}
 
-  if (answers.packageId === 'elements') {
-    if (answers.elementIds.length === 0) return null
-    const priced = elementPrices.filter((item) => answers.elementIds.includes(item.id))
-    const hasOther = answers.elementIds.includes(otherElementsOption.id)
-    const items = [
-      ...priced.map(({ title, priceLabel }) => ({ title, priceLabel })),
-      ...(hasOther ? [{ title: otherElementsOption.title, priceLabel: null }] : []),
-    ]
-    return {
-      packageTitle: `Отдельные элементы: ${items.map((item) => item.title).join(', ')}`,
-      // A total is only honest when every selected element has a confirmed price.
-      priceLabel: priced.length > 0 && !hasOther ? rub(priced.reduce((sum, item) => sum + item.price, 0)) : null,
-      promo: false,
-      duration: 'Подтвердим после бесплатного осмотра',
-      items,
-    }
-  }
+export function selectedGift(answers: QuizAnswers) {
+  return hasGiftStep(answers.packageId) ? gifts.find((item) => item.id === answers.giftId) : undefined
+}
 
-  const selectedPackage = wrappingPackages.find((item) => item.id === answers.packageId)
-  if (!selectedPackage) return null
-
+/** CRM fields of a quiz lead; `displayedPrice` carries only the promotion line actually shown. */
+export function quizLeadFields(answers: QuizAnswers, now: Date = new Date()): Pick<LeadDraft, 'vehicleModel' | 'package' | 'gift' | 'displayedPrice'> {
   return {
-    packageTitle: selectedPackage.title,
-    priceLabel: selectedPackage.priceLabel,
-    // The −10 000 ₽ promotion is shown next to the price and only for full PPF.
-    promo: selectedPackage.id === 'full-ppf' && isPromotionActive(now),
-    duration: selectedPackage.duration,
+    vehicleModel: answers.car,
+    package: wrappingPackages.find((item) => item.id === answers.packageId)?.title,
+    gift: selectedGift(answers)?.title,
+    displayedPrice: showsPromotion(answers.packageId, now) ? promotionBadge : undefined,
   }
 }

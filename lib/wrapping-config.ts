@@ -79,12 +79,13 @@ export const wrappingPackages: readonly WrappingPackage[] = [
   },
 ] as const
 
-export type QuizPackageId = 'full-ppf' | 'front' | 'elements'
+export type QuizPackageId = 'front' | 'full-ppf' | 'color'
 
+/** Quiz step 2: the services that have their own package card on the page. */
 export const quizPackageOptions: readonly { id: QuizPackageId; label: string }[] = [
-  { id: 'full-ppf', label: 'Полная оклейка' },
-  { id: 'front', label: 'Передняя часть (зона риска)' },
-  { id: 'elements', label: 'Отдельные элементы' },
+  { id: 'front', label: 'Зоны риска / передняя часть PPF' },
+  { id: 'full-ppf', label: 'Полная оклейка PPF' },
+  { id: 'color', label: 'Цветная оклейка' },
 ] as const
 
 export const timingOptions = [
@@ -111,9 +112,7 @@ export const elementPrices: readonly {
   { id: 'chrome-delete', title: 'Антихром', price: 20000, priceLabel: 'от 20 000 ₽' },
 ] as const
 
-/** Quiz-only option without a confirmed price: it is priced after inspection. */
-export const otherElementsOption = { id: 'other', title: 'Другие элементы' } as const
-
+/** Gifts for full-body PPF only (one of them, chosen in the quiz). */
 export type GiftId = 'rain' | 'leather-protection' | 'leather-ceramic' | 'transfer' | 'coupon'
 
 export const gifts: readonly { id: GiftId; title: string; note?: string }[] = [

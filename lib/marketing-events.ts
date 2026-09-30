@@ -4,10 +4,8 @@ export type MarketingEventName =
   | 'quiz_start'
   | 'car_selected'
   | 'package_selected'
-  | 'elements_selected'
   | 'quiz_phone'
   | 'lead_submit'
-  | 'offer_view'
   | 'polirovka_quiz_start'
   | 'polirovka_car_selected'
   | 'polirovka_service_selected'
@@ -51,7 +49,7 @@ export function trackMarketingEvent(name: MarketingEventName, payload: Marketing
   const counterId = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID)
   if (!Number.isInteger(counterId) || counterId <= 0 || typeof window.ym !== 'function') return
   const safePayload: MarketingEventPayload = {}
-  if ((name === 'package_selected' || name === 'offer_view') && quizPackageOptions.some((item) => item.id === payload.package)) {
+  if (name === 'package_selected' && quizPackageOptions.some((item) => item.id === payload.package)) {
     safePayload.package = payload.package
   }
   if (name in contactChannels) safePayload.channel = contactChannels[name as keyof typeof contactChannels]

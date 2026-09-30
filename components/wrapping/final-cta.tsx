@@ -3,7 +3,7 @@ import { ContactActions } from './contact-actions'
 
 export function WrappingFinalCta({
   title = 'Рассчитайте стоимость оклейки вашего автомобиля',
-  text = 'Узнайте цену и подарок после короткого расчёта, а точную стоимость — после бесплатного осмотра.',
+  text = 'Оставьте короткую заявку — менеджер рассчитает стоимость для вашего автомобиля, а при полной оклейке PPF зафиксирует подарок.',
 }: { title?: string; text?: string } = {}) {
   return (
     <section className="px-5 pb-20 md:pb-28 lg:px-8">
