@@ -30,8 +30,12 @@ export async function submitLead(
         pagePath: window.location.pathname,
       }),
     })
-    if (response.status !== 201) return { ok: false, error: 'Не удалось отправить заявку. Попробуйте ещё раз.' }
-    const result: unknown = await response.json()
+    const result: unknown = await response.json().catch(() => null)
+    if (response.status !== 201) {
+      // Show the handler's own reason (validation, rate limit, CRM unavailable) instead of a generic text.
+      const reason = result && typeof result === 'object' && 'error' in result && typeof result.error === 'string' ? result.error : ''
+      return { ok: false, error: `${reason || 'Не удалось отправить заявку. Попробуйте ещё раз.'} Данные в форме сохранены.` }
+    }
     if (!result || typeof result !== 'object' || !('ok' in result) || result.ok !== true) {
       return { ok: false, error: 'Не удалось подтвердить отправку заявки.' }
     }

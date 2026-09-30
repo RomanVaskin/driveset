@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react'
-import { getWrappingPackages, priceDisclaimer, promotionDeadlineLabel } from '@/lib/wrapping-config'
+import { isPromotionActive, priceDisclaimer, promotionBadge, promotionDeadlineLabel, wrappingPackages } from '@/lib/wrapping-config'
 
 export function WrappingPackages() {
   return (
@@ -13,19 +13,20 @@ export function WrappingPackages() {
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {getWrappingPackages().map((item) => (
+          {wrappingPackages.map((item) => {
+            const promo = item.id === 'full-ppf' && isPromotionActive()
+            return (
             <article key={item.id} className={`relative flex flex-col rounded-2xl border p-6 shadow-soft md:p-8 ${item.featured ? 'border-champagne/50 bg-primary text-primary-foreground' : 'border-border bg-card'}`}>
-              {item.regularPrice && (
+              {promo && (
                 <span className="mb-5 w-fit rounded-full border border-champagne/40 bg-champagne/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-champagne">
-                  Скидка {(item.regularPrice - item.price).toLocaleString('ru-RU').replace(/\s/g, ' ')} ₽
+                  {promotionBadge}
                 </span>
               )}
               <h3 className="font-display text-2xl font-bold tracking-tight">{item.title}</h3>
               <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                {item.regularPriceLabel && <span className="text-base text-muted-foreground line-through">{item.regularPriceLabel}</span>}
                 <span className="font-display text-2xl font-bold text-champagne">{item.priceLabel}</span>
               </div>
-              {item.regularPrice && <p className="mt-2 text-xs font-medium text-champagne">{promotionDeadlineLabel}</p>}
+              {promo && <p className="mt-2 text-xs font-medium text-champagne">{promotionDeadlineLabel}</p>}
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
               <p className="mt-4 text-sm font-medium">Срок: {item.duration}</p>
 
@@ -40,7 +41,8 @@ export function WrappingPackages() {
                 </ul>
               )}
             </article>
-          ))}
+            )
+          })}
         </div>
 
         <p className="mt-6 max-w-3xl text-sm leading-relaxed text-muted-foreground">{priceDisclaimer}</p>

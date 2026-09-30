@@ -1,6 +1,7 @@
 import {
   elementPrices,
-  getWrappingPackages,
+  isPromotionActive,
+  wrappingPackages,
   otherElementsOption,
   type ElementPriceId,
   type QuizPackageId,
@@ -18,7 +19,6 @@ export type QuizAnswers = {
 export type QuoteResult = {
   packageTitle: string
   priceLabel: string | null
-  regularPriceLabel?: string
   promo: boolean
   duration: string
   /** Selected elements with their own price; null price = confirmed after inspection. */
@@ -56,14 +56,14 @@ export function getQuoteResult(answers: QuizAnswers, now: Date = new Date()): Qu
     }
   }
 
-  const selectedPackage = getWrappingPackages(now).find((item) => item.id === answers.packageId)
+  const selectedPackage = wrappingPackages.find((item) => item.id === answers.packageId)
   if (!selectedPackage) return null
 
   return {
     packageTitle: selectedPackage.title,
     priceLabel: selectedPackage.priceLabel,
-    regularPriceLabel: selectedPackage.regularPriceLabel,
-    promo: Boolean(selectedPackage.regularPriceLabel),
+    // The −10 000 ₽ promotion is shown next to the price and only for full PPF.
+    promo: selectedPackage.id === 'full-ppf' && isPromotionActive(now),
     duration: selectedPackage.duration,
   }
 }

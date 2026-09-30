@@ -14,7 +14,7 @@ export default function OpenGraphImage() {
       <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 1000 }}>
         <div style={{ display: 'flex', color: '#d7bd8a', fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Москва · PPF</div>
         <div style={{ display: 'flex', marginTop: 24, fontSize: 64, lineHeight: 1.06, fontWeight: 800, letterSpacing: '-0.04em' }}>Оклейка автомобиля полиуретановой плёнкой</div>
-        <div style={{ display: 'flex', marginTop: 28, fontSize: 28, color: '#b9b6b0' }}>{isPromotionActive() ? 'Передняя часть от 85 000 ₽ · полный кузов от 190 000 ₽ по акции' : 'Передняя часть от 85 000 ₽ · полный кузов от 210 000 ₽'}</div>
+        <div style={{ display: 'flex', marginTop: 28, fontSize: 28, color: '#b9b6b0' }}>{isPromotionActive() ? 'Зоны риска от 50 000 ₽ · полная PPF от 150 000 ₽ · −10 000 ₽ до 15 октября' : 'Зоны риска от 50 000 ₽ · полная PPF от 150 000 ₽ · цветная от 150 000 ₽'}</div>
       </div>
     </div>,
     size,

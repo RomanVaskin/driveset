@@ -5,12 +5,19 @@ export const wrappingNav = [
   { label: 'Процесс', href: '#process' },
 ] as const
 
-/** Full-body PPF promotion 210 000 → 190 000 ₽: the single source of its end date. */
-export const promotionEndsAt = new Date('2026-09-30T23:59:59+03:00')
-export const promotionDeadlineLabel = 'Акция действует до 30 сентября 2026 года включительно'
+/**
+ * Full-body PPF promotion: −10 000 ₽ off the regular «от 150 000 ₽», shown
+ * separately from the price. Applies only to `full-ppf` — never to the front
+ * package, colour wrap or other services. Single source of its dates.
+ */
+export const promotionStartsAt = new Date('2026-10-01T00:00:00+03:00')
+export const promotionEndsAt = new Date('2026-10-15T23:59:59+03:00')
+export const promotionDiscount = 10000
+export const promotionBadge = '−10 000 ₽ на полную оклейку PPF до 15 октября'
+export const promotionDeadlineLabel = 'Акция действует с 1 по 15 октября 2026 года включительно'
 
 export function isPromotionActive(now: Date = new Date()) {
-  return now.getTime() <= promotionEndsAt.getTime()
+  return now.getTime() >= promotionStartsAt.getTime() && now.getTime() <= promotionEndsAt.getTime()
 }
 
 export type WrappingPackageId = 'front' | 'full-ppf' | 'matte-ppf' | 'color' | 'elements' | 'unknown'
@@ -23,8 +30,6 @@ export type WrappingPackage = {
   duration: string
   description: string
   items?: readonly string[]
-  regularPrice?: number
-  regularPriceLabel?: string
   featured?: boolean
 }
 
@@ -40,20 +45,18 @@ export const frontPackageItems = [
 export const wrappingPackages: readonly WrappingPackage[] = [
   {
     id: 'front',
-    title: 'Передняя часть',
-    price: 85000,
-    priceLabel: 'от 85 000 ₽',
+    title: 'Зоны риска (передняя часть)',
+    price: 50000,
+    priceLabel: 'от 50 000 ₽',
     duration: '2–3 дня',
     description: 'Защита зон, которые первыми принимают на себя камни, песок и дорожные реагенты.',
     items: frontPackageItems,
   },
   {
     id: 'full-ppf',
-    title: 'Полный кузов PPF',
-    price: 190000,
-    priceLabel: 'от 190 000 ₽ по акции',
-    regularPrice: 210000,
-    regularPriceLabel: 'от 210 000 ₽',
+    title: 'Полная оклейка PPF',
+    price: 150000,
+    priceLabel: 'от 150 000 ₽',
     duration: '3–5 дней',
     description: 'Полная защита лакокрасочного покрытия прозрачной полиуретановой плёнкой.',
     featured: true,
@@ -69,27 +72,14 @@ export const wrappingPackages: readonly WrappingPackage[] = [
   {
     id: 'color',
     title: 'Цветная оклейка',
-    price: 230000,
-    priceLabel: 'от 230 000 ₽',
+    price: 150000,
+    priceLabel: 'от 150 000 ₽',
     duration: '3–5 дней',
     description: 'Изменение цвета автомобиля с подбором плёнки и образцов в студии.',
   },
 ] as const
 
 export type QuizPackageId = 'full-ppf' | 'front' | 'elements'
-
-/**
- * Packages as they must be shown at `now`: after the promotion ends the
- * regular price becomes the only price and no discount is shown.
- */
-export function getWrappingPackages(now: Date = new Date()): readonly WrappingPackage[] {
-  if (isPromotionActive(now)) return wrappingPackages
-  return wrappingPackages.map((item) =>
-    item.regularPrice && item.regularPriceLabel
-      ? { ...item, price: item.regularPrice, priceLabel: item.regularPriceLabel, regularPrice: undefined, regularPriceLabel: undefined }
-      : item,
-  )
-}
 
 export const quizPackageOptions: readonly { id: QuizPackageId; label: string }[] = [
   { id: 'full-ppf', label: 'Полная оклейка' },

@@ -2,17 +2,17 @@
 
 import { ArrowLeft, ArrowRight, Check, Gift, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { submitLead } from '@/lib/lead-submission'
+import { submitLead, type LeadDraft } from '@/lib/lead-submission'
 import { trackMarketingEvent, type MarketingEventName, type MarketingEventPayload } from '@/lib/marketing-events'
 import {
   elementPrices,
   gifts,
   otherElementsOption,
   priceDisclaimer,
+  promotionBadge,
   promotionDeadlineLabel,
   quizPackageOptions,
   wrappingBenefits,
-  wrappingPackages,
   type QuizPackageId,
 } from '@/lib/wrapping-config'
 import { getQuoteResult, initialQuizAnswers, type QuizAnswers, type QuizElementId } from '@/lib/wrapping-quiz'
@@ -20,13 +20,13 @@ import { ContactActions } from './contact-actions'
 
 const questionCount = 2
 const elementOptions = [...elementPrices.map(({ id, title }) => ({ id, title })), otherElementsOption] as const
-const fullPpf = wrappingPackages.find((item) => item.id === 'full-ppf')
-const promoDiscount = fullPpf?.regularPrice ? fullPpf.regularPrice - fullPpf.price : 0
+const contactChannels = [['phone', 'Телефон'], ['telegram', 'Telegram'], ['max', 'MAX']] as const
 
 export function WrappingQuiz() {
   // 0 — модель, 1 — что оклеить, 2 — телефон, после успешной заявки — предложение.
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<QuizAnswers>(initialQuizAnswers)
+  const [contactChannel, setContactChannel] = useState<LeadDraft['contactChannel']>('phone')
   const [sending, setSending] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState('')
@@ -90,6 +90,7 @@ export function WrappingQuiz() {
   function reset() {
     setAnswers(initialQuizAnswers)
     setStep(0)
+    setContactChannel('phone')
     setSubmitted(false)
     setSubmitError('')
     tracked.current.clear()
@@ -102,13 +103,13 @@ export function WrappingQuiz() {
     setSending(true)
     setSubmitError('')
     const result = await submitLead({
-      // The user leaves only a phone number; /api/lead names the lead «Заявка DriveSet».
+      // No name is asked; /api/lead names the lead «Заявка DriveSet».
       name: '',
       phone: String(form.get('phone') ?? ''),
-      contactChannel: 'phone',
+      contactChannel,
       vehicleModel: answers.car,
       package: quote.packageTitle,
-      displayedPrice: quote.priceLabel ?? undefined,
+      displayedPrice: quote.priceLabel ? `${quote.priceLabel}${quote.promo ? ', −10 000 ₽ по акции до 15 октября' : ''}` : undefined,
       website: String(form.get('website') ?? ''),
     })
     setSending(false)
@@ -184,30 +185,37 @@ export function WrappingQuiz() {
             {step === 2 && quote && !submitted && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-champagne">Шаг {questionCount + 1} из {questionCount + 1}</p>
-                <h3 className="mt-3 font-display text-3xl font-bold">Предложение для вашего автомобиля готово</h3>
+                <h3 className="mt-3 font-display text-3xl font-bold">Персональное предложение готово</h3>
                 <p className="ym-hide-content mt-2 text-lg font-semibold">{answers.car}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{quizPackageOptions.find((item) => item.id === answers.packageId)?.label}</p>
-                <div className="mt-6 flex items-start gap-3 rounded-xl border border-champagne/30 bg-champagne/5 p-5">
-                  <Gift className="mt-0.5 size-5 shrink-0 text-champagne" aria-hidden="true" />
-                  <div>
-                    {promoOffer ? (
-                      <>
-                        <p className="font-semibold">Для полной оклейки PPF действует акция: скидка {promoDiscount.toLocaleString('ru-RU').replace(/\s/g, ' ')} ₽ + подарок</p>
-                        <p className="mt-1 text-sm text-muted-foreground">{promotionDeadlineLabel}</p>
-                      </>
-                    ) : (
-                      <p className="font-semibold">Получите точную стоимость и подарок</p>
-                    )}
+                <p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">Мы подготовили расчёт стоимости оклейки с учётом вашего автомобиля и выбранных параметров.</p>
+                {promoOffer && (
+                  <div className="mt-5 flex items-start gap-3 rounded-xl border border-champagne/30 bg-champagne/5 p-5">
+                    <Gift className="mt-0.5 size-5 shrink-0 text-champagne" aria-hidden="true" />
+                    <div>
+                      <p className="font-semibold">Для вашего варианта действует скидка 10 000 ₽ до 15 октября.</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{promotionDeadlineLabel}</p>
+                    </div>
                   </div>
-                </div>
+                )}
                 <form onSubmit={sendQuizLead} className="mt-7 grid gap-4">
-                  <label className="grid gap-2 text-sm font-medium sm:max-w-sm">Телефон
+                  <fieldset>
+                    <legend className="mb-3 font-display text-xl font-bold">Куда отправить расчёт?</legend>
+                    <div className="flex flex-wrap gap-3">
+                      {contactChannels.map(([value, label]) => (
+                        <label key={value} className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border px-4 text-sm font-semibold ${contactChannel === value ? 'border-champagne bg-champagne/10' : 'border-border'}`}>
+                          <input type="radio" name="contactChannel" value={value} checked={contactChannel === value} onChange={() => setContactChannel(value)} />{label}
+                        </label>
+                      ))}
+                    </div>
+                  </fieldset>
+                  <label className="grid gap-2 text-sm font-medium sm:max-w-sm">{contactChannel === 'phone' ? 'Телефон' : `Номер телефона, привязанный к ${contactChannel === 'telegram' ? 'Telegram' : 'MAX'}`}
                     <input name="phone" type="tel" required maxLength={32} autoComplete="tel" placeholder="+7 (___) ___-__-__" className="ym-disable-keys h-12 min-w-0 rounded-xl border border-input bg-background px-4 text-base outline-none focus:border-champagne" />
                   </label>
                   <div className="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true"><label htmlFor="quiz-website">Сайт</label><input id="quiz-website" name="website" type="text" autoComplete="off" tabIndex={-1} /></div>
                   {/* Add the approved Privacy Policy link and consent control before production launch. */}
                   <div>
-                    <button type="submit" disabled={sending} className="inline-flex h-12 w-full items-center justify-center rounded-md bg-primary px-6 font-semibold text-primary-foreground disabled:opacity-35 sm:w-auto">{sending ? 'Отправляем…' : <>Показать цену и подарок<ArrowRight className="ml-2 size-4" /></>}</button>
+                    <button type="submit" disabled={sending} className="inline-flex h-12 w-full items-center justify-center rounded-md bg-primary px-6 font-semibold text-primary-foreground disabled:opacity-35 sm:w-auto">{sending ? 'Отправляем…' : <>Получить расчёт<ArrowRight className="ml-2 size-4" /></>}</button>
                     <p className="mt-2 text-sm text-muted-foreground">Без предоплаты и обязательств</p>
                   </div>
                   {submitError && <p role="alert" className="text-sm text-destructive">{submitError}</p>}
@@ -223,11 +231,10 @@ export function WrappingQuiz() {
                 <h3 className="ym-hide-content mt-3 font-display text-3xl font-bold">{answers.car}</h3>
                 <div className="mt-7 rounded-xl border border-champagne/30 bg-champagne/5 p-6">
                   <p className="font-display text-xl font-bold">{quote.packageTitle}</p>
-                  {quote.regularPriceLabel && <p className="mt-4 text-muted-foreground line-through">{quote.regularPriceLabel}</p>}
                   {quote.priceLabel
                     ? <p className="mt-1 font-display text-3xl font-bold text-champagne">{quote.priceLabel}</p>
                     : <p className="mt-4 font-semibold">Точную стоимость подтвердим после бесплатного осмотра</p>}
-                  {quote.promo && <p className="mt-2 text-sm font-semibold text-champagne">{promotionDeadlineLabel}</p>}
+                  {quote.promo && <p className="mt-2 text-sm font-semibold text-champagne">{promotionBadge}</p>}
                   {quote.items && (
                     <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                       {quote.items.map((item) => <li key={item.title} className="flex justify-between gap-3 border-t border-border pt-2 text-sm"><span>{item.title}</span><strong className="text-champagne">{item.priceLabel ?? 'после осмотра'}</strong></li>)}

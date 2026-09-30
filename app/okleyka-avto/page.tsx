@@ -18,14 +18,14 @@ import { WrappingWorks } from '@/components/wrapping/works'
 import { site } from '@/lib/site-config'
 import { faqItems, isPromotionActive } from '@/lib/wrapping-config'
 
-// Re-render at least once a minute so promotion texts switch off on their own after `promotionEndsAt`.
+// Re-render at least once a minute so promotion texts switch on/off on their own at `promotionStartsAt`/`promotionEndsAt`.
 export const revalidate = 60
 
 const title = 'Оклейка автомобиля полиуретановой плёнкой в Москве'
 
 function getDescription() {
-  const fullPpf = isPromotionActive() ? 'полный кузов PPF от 190 000 ₽ по акции' : 'полный кузов PPF от 210 000 ₽'
-  return `Оклейка автомобиля защитной PPF-плёнкой в DriveSet. Передняя часть от 85 000 ₽, ${fullPpf}. Бесплатный осмотр.`
+  const promo = isPromotionActive() ? ' Скидка 10 000 ₽ на полную оклейку PPF до 15 октября.' : ''
+  return `Оклейка автомобиля защитной PPF-плёнкой в DriveSet. Зоны риска от 50 000 ₽, полная оклейка PPF от 150 000 ₽, цветная оклейка от 150 000 ₽.${promo} Бесплатный осмотр.`
 }
 
 export function generateMetadata(): Metadata {

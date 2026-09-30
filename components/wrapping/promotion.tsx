@@ -1,5 +1,5 @@
 import { BadgePercent } from 'lucide-react'
-import { isPromotionActive, promotionDeadlineLabel } from '@/lib/wrapping-config'
+import { isPromotionActive, promotionBadge, promotionDeadlineLabel } from '@/lib/wrapping-config'
 
 export function WrappingPromotion() {
   if (!isPromotionActive()) return null
@@ -13,11 +13,10 @@ export function WrappingPromotion() {
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-champagne">Акция на полный кузов PPF</p>
             <h2 className="mt-2 font-display text-2xl font-bold tracking-tight md:text-4xl">
-              <span className="text-muted-foreground line-through">от 210 000 ₽</span>{' '}
-              <span className="text-champagne">→ от 190 000 ₽ по акции</span>
+              <span className="text-champagne">{promotionBadge}</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Скидка 20 000 ₽ действует только на полную оклейку прозрачной PPF-плёнкой.
+              Скидка 10 000 ₽ от стоимости «от 150 000 ₽» действует только на полную оклейку кузова прозрачной PPF-плёнкой. На зоны риска, цветную оклейку и другие услуги не распространяется.
             </p>
             <p className="mt-2 text-sm font-semibold text-champagne">{promotionDeadlineLabel}</p>
           </div>

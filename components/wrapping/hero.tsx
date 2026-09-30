@@ -1,13 +1,14 @@
 import { ArrowDown, Check, MapPin } from 'lucide-react'
 import { site } from '@/lib/site-config'
-import { getWrappingPackages } from '@/lib/wrapping-config'
+import { isPromotionActive, wrappingPackages } from '@/lib/wrapping-config'
 import { PhotoCalcLink } from './contact-actions'
 import { WrappingHeroMedia } from './works-client'
 
 const heroFacts = ['5 лет опыта', '41 отзыв', 'Рейтинг 5.0', 'Гарантия 3 года'] as const
 
 export function WrappingHero() {
-  const fullPpf = getWrappingPackages().find((item) => item.id === 'full-ppf')!
+  const front = wrappingPackages.find((item) => item.id === 'front')!
+  const fullPpf = wrappingPackages.find((item) => item.id === 'full-ppf')!
   return (
     <section id="top" className="section-dark overflow-hidden border-b border-border">
       <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-w-6xl items-center gap-10 px-5 py-14 md:min-h-[720px] md:grid-cols-[1.05fr_0.95fr] md:py-20 lg:px-8">
@@ -26,13 +27,13 @@ export function WrappingHero() {
 
           <div className="mt-7 grid max-w-xl grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border">
             <div className="bg-card p-4 sm:p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Передняя часть</p>
-              <p className="mt-2 font-display text-xl font-bold text-champagne sm:text-2xl">от 85 000 ₽</p>
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Зоны риска</p>
+              <p className="mt-2 font-display text-xl font-bold text-champagne sm:text-2xl">{front.priceLabel}</p>
             </div>
             <div className="bg-card p-4 sm:p-5">
-              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Полный кузов PPF</p>
-              <p className="mt-2 font-display text-xl font-bold text-champagne sm:text-2xl">от {fullPpf.price.toLocaleString('ru-RU').replace(/\s/g, ' ')} ₽</p>
-              {fullPpf.regularPrice && <p className="mt-1 text-xs text-muted-foreground">по акции</p>}
+              <p className="text-xs uppercase tracking-[0.14em] text-muted-foreground">Полная оклейка PPF</p>
+              <p className="mt-2 font-display text-xl font-bold text-champagne sm:text-2xl">{fullPpf.priceLabel}</p>
+              {isPromotionActive() && <p className="mt-1 text-xs text-muted-foreground">−10 000 ₽ до 15 октября</p>}
             </div>
           </div>
 
