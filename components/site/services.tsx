@@ -28,11 +28,6 @@ export function Services() {
                 sizes={service.featured ? '(max-width: 768px) 100vw, 60vw' : '(max-width: 768px) 100vw, 50vw'}
                 className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
-              {service.featured && (
-                <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-graphite/75 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-md">
-                  Приоритетное направление
-                </span>
-              )}
             </div>
             <div className={`flex flex-1 flex-col ${service.featured ? 'p-7 md:justify-center md:p-10' : 'p-6 md:p-7'}`}>
               <h3 className={`font-display font-bold tracking-tight ${service.featured ? 'text-2xl md:text-3xl' : 'text-xl md:text-2xl'}`}>

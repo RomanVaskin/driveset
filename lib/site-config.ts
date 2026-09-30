@@ -72,8 +72,8 @@ export const services: Service[] = [
     image: '/images/service-polishing.webp',
     imageAlt: 'Процесс профессиональной полировки кузова автомобиля в DriveSet',
     price: 'от 10 000 ₽',
-    href: '#lead',
-    cta: 'Рассчитать стоимость',
+    href: '/polirovka-avto',
+    cta: 'Подробнее о полировке',
   },
   {
     id: 'cleaning',
@@ -83,8 +83,8 @@ export const services: Service[] = [
     image: '/images/service-cleaning.webp',
     imageAlt: 'Профессиональная химчистка салона автомобиля в детейлинг-центре DriveSet',
     price: 'от 10 000 ₽',
-    href: '#lead',
-    cta: 'Рассчитать стоимость',
+    href: '/himchistka-avto',
+    cta: 'Подробнее о химчистке',
   },
 ]
 
