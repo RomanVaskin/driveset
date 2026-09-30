@@ -174,7 +174,7 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 
 | Файл | Роль | Тип |
 | --- | --- | --- |
-| `app/himchistka-avto/page.tsx` | Сборка: hero (`/images/service-cleaning.webp`) → квиз → `TrustStrip` → «Что можно очистить» → «Стоимость химчистки» → работы `dry-cleaning` → процесс → преимущества → FAQ → контакты → финальный CTA; metadata, canonical, OG, JSON-LD | server |
+| `app/himchistka-avto/page.tsx` | Сборка: hero (`/images/service-cleaning.webp`) → квиз → `TrustStrip` → «Что можно очистить» → «Стоимость химчистки» → работы `dry-cleaning` → процесс → преимущества «Сервис без лишних сложностей» (`WrappingBenefits twoColumns`: 4 отдельные карточки 2×2, на mobile по одной) → FAQ → контакты → финальный CTA; metadata, canonical, OG, JSON-LD | server |
 | `app/himchistka-avto/opengraph-image.tsx` | Текстовый OG-визуал без цен | server |
 | `components/cleaning/quiz.tsx` | «Модель автомобиля» → «Что нужно сделать?» (мультивыбор, «Другое» + текст) → «Получите расчёт стоимости химчистки» | client |
 | `components/cleaning/quiz-result.tsx` | Экран после успешной заявки: подтверждение и фото салона в Telegram/MAX (существующие каналы); заменяемый блок для будущей механики цены | server-safe |

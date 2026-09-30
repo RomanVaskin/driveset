@@ -79,7 +79,7 @@ export default function CleaningPage() {
         <PriceList title="Стоимость химчистки" items={cleaningPrices} note={cleaningPriceNote} />
         <PortfolioWorks category="dry-cleaning" description="Фото и видео салонов после химчистки в DriveSet." itemLabel="химчистке" />
         <WrappingProcess steps={cleaningProcess} title="Как проходит химчистка" />
-        <WrappingBenefits items={cleaningBenefits} title="Удобно записаться и забрать автомобиль" />
+        <WrappingBenefits items={cleaningBenefits} title="Сервис без лишних сложностей" twoColumns />
         <WrappingFaq items={cleaningFaq} />
         <LandingContacts />
         <WrappingFinalCta title="Рассчитайте стоимость химчистки салона" text="Стоимость зависит от автомобиля, объёма работ и состояния салона — оставьте заявку, и мы её рассчитаем." />
