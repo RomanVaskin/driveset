@@ -193,11 +193,15 @@ export async function POST(request: Request) {
     })
     if (response.status !== 201) {
       duplicates.delete(fingerprint)
+      // Server journal only: CRM status and its error text, no lead data.
+      const detail = (await response.text().catch(() => '')).slice(0, 200)
+      console.error(`[lead] CRM rejected ${input.pagePath}: ${response.status} ${detail}`)
       return failure(502, 'Не удалось отправить заявку. Попробуйте позже.')
     }
     return NextResponse.json({ ok: true }, { status: 201 })
   } catch (error) {
     duplicates.delete(fingerprint)
+    console.error(`[lead] CRM request failed ${input.pagePath}: ${error instanceof Error ? error.name : 'unknown'}`)
     return failure(error instanceof Error && error.name === 'TimeoutError' ? 504 : 502, 'Не удалось отправить заявку. Попробуйте позже.')
   }
 }
