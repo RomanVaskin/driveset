@@ -14,8 +14,10 @@ export function MarketingBootstrap() {
 
   useEffect(() => {
     captureCampaignAttribution()
+    // One delegated handler for every route: direct Telegram/phone links (ContactActions on all
+    // landings, home contacts/footer/CTA) are contact intents, never leads. Adding onClick to the
+    // links themselves would double-count; MAX has no link and is tracked where its number is copied.
     const handleContactClick = (event: MouseEvent) => {
-      if (pathname !== '/' && pathname !== '/okleyka-avto') return
       if (!(event.target instanceof Element)) return
       const href = event.target.closest('a[href]')?.getAttribute('href')
       if (href === site.telegramHref) trackMarketingEvent('telegram_click')

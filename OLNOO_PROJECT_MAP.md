@@ -21,7 +21,7 @@ Production-карта файлов. Обновлять при любом изм�
 | `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность пяти `utm_*` и `yclid` с сохранением первого значения каждого поля. |
 | `lib/marketing-events.ts` | Типизированная граница целей Яндекс Метрики с белым списком неперсональных параметров (`package`, `channel`). |
 | `lib/lead-submission.ts` | Общий клиентский POST всех форм в `/api/lead`; собирает attribution/pagePath и только после `201 {ok:true}` отправляет цель успеха: по умолчанию `lead_submit`, для `/polirovka-avto` — `polirovka_lead_submit`, для `/himchistka-avto` — `himchistka_lead_submit`. |
-| `components/marketing-bootstrap.tsx` | Клиентский сбор атрибуции на всех маршрутах, загрузка Метрики при наличии ID и просмотры страниц App Router. |
+| `components/marketing-bootstrap.tsx` | Клиентский сбор атрибуции на всех маршрутах, загрузка Метрики при наличии ID, просмотры страниц App Router и единый делегированный обработчик кликов по ссылкам `site.telegramHref`/`site.phoneHref` → `telegram_click`/`phone_click` на всех маршрутах (с 01.10.2026; раньше только `/` и `/okleyka-avto`). |
 | `app/api/lead/route.ts` | Единственный Node.js endpoint заявок: валидация, honeypot, ограничение частоты/дублей в памяти процесса, server-side POST в OLNOO CRM и минимальный ответ браузеру. |
 
 ## Секции лендинга (`components/site/`)
@@ -125,7 +125,7 @@ footer, metadata, canonical, Open Graph image и JSON-LD (`Service` + видим
 | `components/wrapping/hero.tsx` | H1, ценовые якоря, CTA (включая `photo_calc_click`), trust-факты и реальный poster | server + client media/actions |
 | `components/wrapping/packages.tsx`, `promotion.tsx` | Основные пакеты (с 01.10.2026: зоны риска от 50 000 ₽, полная PPF от 150 000 ₽, матовая PPF от 150 000 ₽, цветная от 150 000 ₽) и акция −10 000 ₽ на полную PPF 01.10–15.10.2026 | server |
 | `components/wrapping/quiz.tsx` | С 01.10.2026 lead-форма без показа цены: автомобиль → услуга (зоны риска / полная PPF / цветная) → подарок (только полная PPF, один из `gifts`) → контакт «Остался последний шаг» (канал телефон/Telegram/MAX, CTA «Получить расчёт + подарок» / «Получить расчёт») → «Заявка отправлена»; логика в `lib/wrapping-quiz.ts`; свободный ввод скрыт от записи Вебвизора; цели `quiz_start`, `car_selected`, `package_selected`, `quiz_phone`, `lead_submit` | client |
-| `components/wrapping/contact-actions.tsx` | Telegram/телефон; MAX копирует подтверждённый номер без выдуманного URL и отмечает клик; CTA по фото отмечает `photo_calc_click`; WhatsApp скрыт из UI | client |
+| `components/wrapping/contact-actions.tsx` | Telegram/телефон (их клики считает обработчик в `marketing-bootstrap.tsx`, своих onClick нет — иначе двойной счёт); MAX копирует подтверждённый номер без выдуманного URL и отмечает `max_click`; CTA по фото отмечает `photo_calc_click`; WhatsApp скрыт из UI | client |
 | `components/wrapping/works.tsx`, `works-client.tsx` | Только runtime `category=wrapping`; WebP posters lazy, MP4 только после открытия | server + client |
 | `components/wrapping/tracker-preview.tsx` | Статический коммерческий пример будущего персонального онлайн-трекера после преимуществ; без ссылки и backend | server |
 | `components/wrapping/new-car.tsx`, `films.tsx`, `benefits.tsx`, `process.tsx`, `element-prices.tsx` (перечень отдельных элементов без цен), `reviews.tsx`, `faq.tsx`, `final-cta.tsx` | Остальные коммерческие и информационные секции | server (вложенные contact actions — client) |
@@ -163,7 +163,7 @@ Privacy Policy и согласие у обеих форм.
 В квизе цен нет. В CRM: `vehicleModel`, `package` = «Полировка: <ответ> → <услуга>; …» (все
 выбранные ответы), без `displayedPrice`, телефон,
 UTM, yclid, `pagePath=/polirovka-avto`; `/api/lead` ставит `service=polirovka-avto`.
-Цели Метрики: только `polirovka_*` (см. `OLNOO_ARCHITECTURE.md`).
+Цели Метрики: воронка только `polirovka_*` (см. `OLNOO_ARCHITECTURE.md`); прямые контакты — общие `telegram_click`/`max_click`/`phone_click`.
 Работы: `PortfolioWorks category="polishing"`.
 
 ## Посадочная `/himchistka-avto`
@@ -187,7 +187,7 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 показывается без цены. С 01.10.2026 в квизе цен нет (прайс на странице остаётся).
 В CRM: `vehicleModel`, `package` = «Химчистка салона — выбрано: <ответы через запятую, для «Другое» — «Другое: <текст>»>»,
 телефон, UTM, yclid, `pagePath=/himchistka-avto`; `/api/lead` ставит `service=himchistka-avto`.
-Цели Метрики: только `himchistka_*`.
+Цели Метрики: воронка только `himchistka_*`; прямые контакты — общие `telegram_click`/`max_click`/`phone_click`.
 
 ## Конфиг
 
