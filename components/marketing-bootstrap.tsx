@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import { captureCampaignAttribution } from '@/lib/campaign-attribution'
+import { handleContactClick } from '@/lib/contact-click'
 import { trackMarketingEvent } from '@/lib/marketing-events'
 import { site } from '@/lib/site-config'
 
@@ -14,15 +15,16 @@ export function MarketingBootstrap() {
 
   useEffect(() => {
     captureCampaignAttribution()
-    const handleContactClick = (event: MouseEvent) => {
-      if (!(event.target instanceof Element)) return
-      const href = event.target.closest('a[href]')?.getAttribute('href')
-      if (href === site.telegramHref) trackMarketingEvent('telegram_click')
-      if (href?.startsWith('tel:')) trackMarketingEvent('phone_click')
-    }
-    document.addEventListener('click', handleContactClick)
+    const onClick = (event: MouseEvent) =>
+      handleContactClick(event, {
+        telegramHref: site.telegramHref,
+        track: trackMarketingEvent,
+        navigate: (href) => window.location.assign(href),
+        setTimer: (fn, ms) => window.setTimeout(fn, ms),
+      })
+    document.addEventListener('click', onClick)
     if (!Number.isInteger(counterId) || counterId <= 0) {
-      return () => document.removeEventListener('click', handleContactClick)
+      return () => document.removeEventListener('click', onClick)
     }
 
     if (!initialized) {
@@ -48,7 +50,7 @@ export function MarketingBootstrap() {
     } catch {
       // A blocked counter must not affect the site.
     }
-    return () => document.removeEventListener('click', handleContactClick)
+    return () => document.removeEventListener('click', onClick)
   }, [pathname])
 
   return null

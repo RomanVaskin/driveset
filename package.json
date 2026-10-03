@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "media:portfolio": "node scripts/process-portfolio-media.mjs"
+    "media:portfolio": "node scripts/process-portfolio-media.mjs",
+    "test": "node --experimental-strip-types --test lib/*.test.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
