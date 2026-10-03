@@ -18,7 +18,7 @@
 | SSL | Certbot / Let's Encrypt |
 | Заявки | `/api/lead` → OLNOO CRM (`OLNOO_CRM_URL`, `OLNOO_CRM_API_KEY` — server-only env) |
 
-REG.RU `194.67.113.146` — **не production**, только временный rollback.
+REG.RU `194.67.113.146` — **не production и не готовый rollback**, а временная legacy-копия: после переключения деплой её не обновляет.
 
 ## Deploy flow
 
@@ -59,9 +59,10 @@ echo | openssl s_client -connect driveset.ru:443 -servername driveset.ru 2>/dev/
 `pnpm build` → `systemctl restart driveset.service` → smoke checks. Либо revert-коммит в `main` и обычный deploy.
 
 Откат на прежний сервер REG.RU (`194.67.113.146`, только при недоступности Beget):
-1. Копия на REG.RU **не обновляется** деплоем после переключения: сначала привести её к актуальному `main`
-   (`/opt/driveset`, `pnpm build`, `systemctl restart driveset.service`) и проверить media.
+1. REG.RU — legacy-копия, **не обновляется** деплоем. Перед возможным откатом синхронизировать актуальный `main`
+   (`/opt/driveset`, `pnpm install --frozen-lockfile`, `pnpm build`, `systemctl restart driveset.service`) и проверить
+   env (в т.ч. `OLNOO_CRM_*`), media и service.
 2. Вернуть DNS `driveset.ru` на `194.67.113.146` и `SERVER_HOST` на его значение.
-3. Прогнать smoke checks. После снятия rollback REG.RU убрать из документации.
+3. Прогнать smoke checks. Когда legacy-копия не нужна, убрать REG.RU из документации.
 
 Заявки хранятся в OLNOO CRM, а не на сервере сайта — при откате они не теряются.
