@@ -20,8 +20,8 @@ import { basename, delimiter, dirname, extname, join, relative, resolve, sep } f
 import { tmpdir } from 'node:os'
 
 const PIPELINE_VERSION = 1
-const DEFAULT_INPUT = '/opt/olnoo/media/driveset/portfolio'
-const DEFAULT_OUTPUT = '/opt/olnoo/media/driveset/portfolio-web'
+const DEFAULT_INPUT = '/opt/media/driveset/portfolio'
+const DEFAULT_OUTPUT = '/opt/media/driveset/portfolio-web'
 const DEFAULT_PUBLIC_BASE = '/media/portfolio-web'
 const CATEGORIES = ['wrapping', 'polishing', 'dry-cleaning']
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.heic'])

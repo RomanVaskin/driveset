@@ -95,12 +95,12 @@ Next.js; до успешной загрузки использует `work-1..4.
 | Файл | Роль |
 | --- | --- |
 | `scripts/process-portfolio-media.mjs` | Рекурсивно и идемпотентно готовит WebP/MP4/poster, проверяет производные, изолирует пофайловые ошибки и атомарно пишет manifest/state. Оригиналы только читает. |
-| `package.json` → `media:portfolio` | Запуск pipeline. **Встроенные пути по умолчанию в скрипте (`DEFAULT_INPUT`/`DEFAULT_OUTPUT`) всё ещё указывают на прежний `/opt/olnoo/media/driveset/…`** (код после миграции на Beget не менялся), поэтому на production запускать с явными `--input /opt/media/driveset/portfolio --output /opt/media/driveset/portfolio-web`. Для локальной проверки скрипт принимает `--input`, `--output`, `--public-base`. |
+| `package.json` → `media:portfolio` | Запуск pipeline с production-путями по умолчанию (`/opt/media/driveset/portfolio` → `/opt/media/driveset/portfolio-web`). Для локальной проверки скрипт принимает `--input`, `--output`, `--public-base`. |
 
 Системные утилиты: `ffmpeg`/`ffprobe` и `cwebp` (Ubuntu-пакет `webp`); для
 встреченных HEIC дополнительно `heif-convert` из Ubuntu-пакета
 `libheif-examples`. Скрипт проверяет их наличие, но ничего не устанавливает. Команда на
-production: `pnpm --dir /opt/driveset run media:portfolio -- --input /opt/media/driveset/portfolio --output /opt/media/driveset/portfolio-web`.
+production: `pnpm --dir /opt/driveset run media:portfolio`.
 
 ## Навигация / якоря
 
@@ -198,6 +198,8 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 | Server-only env | `OLNOO_CRM_URL` (база `https://admin.olnoo.com`) и `OLNOO_CRM_API_KEY` для `/api/lead`; значения не должны попадать в `NEXT_PUBLIC_*` или Git. |
 
 ## Деплой (production, Beget)
+
+Краткий runbook (topology, deploy flow, smoke checks, rollback) — `OLNOO_PRODUCTION.md`.
 
 | Факт | Значение |
 | --- | --- |

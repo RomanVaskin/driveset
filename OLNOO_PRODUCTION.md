@@ -1,0 +1,67 @@
+# OLNOO_PRODUCTION.md — DriveSet production runbook
+
+Короткий runbook. Подробности по коду — `OLNOO_PROJECT_MAP.md`, решения — `OLNOO_ARCHITECTURE.md`.
+Значения секретов здесь не хранятся.
+
+## Production topology
+
+| Что | Значение |
+| --- | --- |
+| Провайдер | Beget VPS (Ubuntu) |
+| IP | `31.207.74.26` |
+| Домен | `driveset.ru` |
+| Приложение | `/opt/driveset` (Next.js, pnpm) |
+| systemd | `driveset.service` |
+| Порт | `3230` на `127.0.0.1` |
+| nginx | `driveset.ru` → upstream `127.0.0.1:3230`; `/media/` раздаётся из `/opt/media/driveset` |
+| Media (вне Git) | `/opt/media/driveset` (`hero-optimized.mp4`, `portfolio/`, `portfolio-web/`) |
+| SSL | Certbot / Let's Encrypt |
+| Заявки | `/api/lead` → OLNOO CRM (`OLNOO_CRM_URL`, `OLNOO_CRM_API_KEY` — server-only env) |
+
+REG.RU `194.67.113.146` — **не production**, только временный rollback.
+
+## Deploy flow
+
+Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH на Beget →
+`git fetch` + `git reset --hard origin/main` → `corepack enable` → `pnpm install --frozen-lockfile` →
+`pnpm build` → `systemctl restart driveset.service` → `systemctl is-active` → `curl http://127.0.0.1:3230`.
+
+GitHub Secrets: `SERVER_HOST` (→ `31.207.74.26`), `SERVER_USER`, `SERVER_SSH_KEY`.
+Media и production env в Git не входят и деплоем не меняются.
+
+## Smoke checks
+
+На сервере:
+
+```bash
+systemctl is-active driveset.service
+curl -fsS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3230
+nginx -t
+journalctl -u driveset.service -n 50 --no-pager
+```
+
+Снаружи (все ожидаемо `200`):
+
+```bash
+for p in / /okleyka-avto /polirovka-avto /himchistka-avto /sitemap.xml /media/hero-optimized.mp4; do
+  curl -sS -o /dev/null -w "$p %{http_code}\n" "https://driveset.ru$p"
+done
+curl -sSI https://driveset.ru | head -1
+echo | openssl s_client -connect driveset.ru:443 -servername driveset.ru 2>/dev/null | openssl x509 -noout -enddate
+```
+
+Медиа-pipeline (при добавлении portfolio-файлов):
+`pnpm --dir /opt/driveset run media:portfolio` (пути по умолчанию уже `/opt/media/driveset/…`).
+
+## Rollback
+
+Откат кода (на Beget): `git -C /opt/driveset reset --hard <good-sha>` → `pnpm install --frozen-lockfile` →
+`pnpm build` → `systemctl restart driveset.service` → smoke checks. Либо revert-коммит в `main` и обычный deploy.
+
+Откат на прежний сервер REG.RU (`194.67.113.146`, только при недоступности Beget):
+1. Копия на REG.RU **не обновляется** деплоем после переключения: сначала привести её к актуальному `main`
+   (`/opt/driveset`, `pnpm build`, `systemctl restart driveset.service`) и проверить media.
+2. Вернуть DNS `driveset.ru` на `194.67.113.146` и `SERVER_HOST` на его значение.
+3. Прогнать smoke checks. После снятия rollback REG.RU убрать из документации.
+
+Заявки хранятся в OLNOO CRM, а не на сервере сайта — при откате они не теряются.
