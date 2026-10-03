@@ -79,14 +79,14 @@ robots.txt в проекте отсутствуют). Лендинговые к�
 ## Медиа вне репозитория
 
 Hero-видео `https://driveset.ru/media/hero-optimized.mp4` отдаёт nginx на production
-(файл лежит на сервере, **в git его нет**, `public/media/` не создаём). URL
+из `/opt/media/driveset` (файл лежит на сервере, **в git его нет**, `public/media/` не создаём). URL
 захардкожен константой `heroVideoSrc` в `components/site/hero.tsx`. Если файла
 нет или он не грузится — виден poster `/images/hero-detailing.png`.
 
 Portfolio-оригиналы находятся на production в
-`/opt/olnoo/media/driveset/portfolio/{wrapping,polishing,dry-cleaning}/`.
+`/opt/media/driveset/portfolio/{wrapping,polishing,dry-cleaning}/`.
 Производные и `manifest.json` создаются вне Git в
-`/opt/olnoo/media/driveset/portfolio-web/` и доступны сайту по URL
+`/opt/media/driveset/portfolio-web/` и доступны сайту по URL
 `/media/portfolio-web/`. Галерея загружает manifest в браузере без пересборки
 Next.js; до успешной загрузки использует `work-1..4.png`.
 
@@ -95,12 +95,12 @@ Next.js; до успешной загрузки использует `work-1..4.
 | Файл | Роль |
 | --- | --- |
 | `scripts/process-portfolio-media.mjs` | Рекурсивно и идемпотентно готовит WebP/MP4/poster, проверяет производные, изолирует пофайловые ошибки и атомарно пишет manifest/state. Оригиналы только читает. |
-| `package.json` → `media:portfolio` | Запуск pipeline с production-путями по умолчанию. Для локальной проверки скрипт принимает `--input`, `--output`, `--public-base`. |
+| `package.json` → `media:portfolio` | Запуск pipeline. **Встроенные пути по умолчанию в скрипте (`DEFAULT_INPUT`/`DEFAULT_OUTPUT`) всё ещё указывают на прежний `/opt/olnoo/media/driveset/…`** (код после миграции на Beget не менялся), поэтому на production запускать с явными `--input /opt/media/driveset/portfolio --output /opt/media/driveset/portfolio-web`. Для локальной проверки скрипт принимает `--input`, `--output`, `--public-base`. |
 
 Системные утилиты: `ffmpeg`/`ffprobe` и `cwebp` (Ubuntu-пакет `webp`); для
 встреченных HEIC дополнительно `heif-convert` из Ubuntu-пакета
 `libheif-examples`. Скрипт проверяет их наличие, но ничего не устанавливает. Команда на
-production: `pnpm --dir /opt/driveset run media:portfolio`.
+production: `pnpm --dir /opt/driveset run media:portfolio -- --input /opt/media/driveset/portfolio --output /opt/media/driveset/portfolio-web`.
 
 ## Навигация / якоря
 
@@ -197,15 +197,17 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 | `.env.production` | Публичный ID реального счётчика Метрики через `NEXT_PUBLIC_YANDEX_METRIKA_ID`; Next.js встраивает значение при production build. |
 | Server-only env | `OLNOO_CRM_URL` (база `https://admin.olnoo.com`) и `OLNOO_CRM_API_KEY` для `/api/lead`; значения не должны попадать в `NEXT_PUBLIC_*` или Git. |
 
-## Деплой (production, REG.RU)
+## Деплой (production, Beget)
 
 | Факт | Значение |
 | --- | --- |
 | Домен | `driveset.ru` |
-| Сервер | REG.RU VPS (IP не хранится в документации — см. GitHub Secret `SERVER_HOST`) |
+| Сервер | Beget VPS, публичный IP `31.207.74.26` (GitHub Secret `SERVER_HOST` указывает на него) |
 | Путь на сервере | `/opt/driveset` |
 | systemd-сервис | `driveset.service` |
-| Порт | `3230` |
+| Порт | `3230` (nginx: `proxy_pass http://127.0.0.1:3230`) |
+| Media | `/opt/media/driveset` (nginx раздаёт `/media/`; вне Git) |
+| SSL | Certbot / Let's Encrypt |
 | Ветка деплоя | `main` |
 | Package manager | `pnpm` (via `corepack enable`) |
 | Workflow | `.github/workflows/deploy.yml`, триггер — push в `main` |
@@ -215,6 +217,9 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 → `pnpm build` → `systemctl restart driveset.service` → проверка `is-active` и
 `curl http://127.0.0.1:3230`.
 
-Production перенесён с прежнего KZ-сервера (`213.155.29.140`,
-`/opt/olnoo/projects/driveset`) на REG.RU в 2026-09; secrets обновлены, путь на
-сервере поменялся, остальной процесс деплоя не изменился.
+Production перенесён с KZ-сервера (`213.155.29.140`, `/opt/olnoo/projects/driveset`) на REG.RU
+в 2026-09, затем с REG.RU на Beget (`31.207.74.26`): путь `/opt/driveset`, сервис,
+порт и процесс деплоя не менялись, GitHub Actions deploy работает на Beget
+(`SERVER_HOST` → `31.207.74.26`), media перенесены в `/opt/media/driveset`.
+**Прежний сервер REG.RU (`194.67.113.146`) больше не production** — временно оставлен
+только как rollback, после снятия rollback его можно удалить из этой записи.
