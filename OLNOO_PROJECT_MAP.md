@@ -21,7 +21,7 @@ Production-карта файлов. Обновлять при любом изм�
 | `lib/campaign-attribution.ts` | Клиентский сбор и sessionStorage-персистентность пяти `utm_*` и `yclid` с сохранением первого значения каждого поля. |
 | `lib/marketing-events.ts` | Типизированная граница целей Яндекс Метрики с белым списком неперсональных параметров (`package`, `channel`). |
 | `lib/lead-submission.ts` | Общий клиентский POST всех форм в `/api/lead`; собирает attribution/pagePath и только после `201 {ok:true}` отправляет цель успеха: по умолчанию `lead_submit`, для `/polirovka-avto` — `polirovka_lead_submit`, для `/himchistka-avto` — `himchistka_lead_submit`. |
-| `components/marketing-bootstrap.tsx` | Клиентский сбор атрибуции на всех маршрутах, загрузка Метрики при наличии ID и просмотры страниц App Router. |
+| `components/marketing-bootstrap.tsx` | Клиентский сбор атрибуции на всех маршрутах, загрузка Метрики при наличии ID, просмотры страниц App Router и единое отслеживание кликов по Telegram/`tel:`-ссылкам. |
 | `app/api/lead/route.ts` | Единственный Node.js endpoint заявок: валидация, honeypot, ограничение частоты/дублей в памяти процесса, server-side POST в OLNOO CRM и минимальный ответ браузеру. |
 
 ## Секции лендинга (`components/site/`)

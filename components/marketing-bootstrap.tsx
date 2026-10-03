@@ -15,11 +15,10 @@ export function MarketingBootstrap() {
   useEffect(() => {
     captureCampaignAttribution()
     const handleContactClick = (event: MouseEvent) => {
-      if (pathname !== '/' && pathname !== '/okleyka-avto') return
       if (!(event.target instanceof Element)) return
       const href = event.target.closest('a[href]')?.getAttribute('href')
       if (href === site.telegramHref) trackMarketingEvent('telegram_click')
-      if (href === site.phoneHref) trackMarketingEvent('phone_click')
+      if (href?.startsWith('tel:')) trackMarketingEvent('phone_click')
     }
     document.addEventListener('click', handleContactClick)
     if (!Number.isInteger(counterId) || counterId <= 0) {
