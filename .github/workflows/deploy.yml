@@ -15,25 +15,67 @@ jobs:
     steps:
       - name: Deploy to production
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          DEPLOY_SHA: ${{ github.sha }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: DEPLOY_SHA
           command_timeout: 20m
           script: |
             set -e
 
-            cd /opt/driveset
+            DEPLOY_DIR=/opt/driveset
+            SERVICE=driveset.service
+
+            cd "$DEPLOY_DIR"
+
+            # Fail fast if this is not the DriveSet checkout.
+            case "$(git remote get-url origin)" in
+              *RomanVaskin/driveset*) ;;
+              *) echo "::error::origin of $DEPLOY_DIR is not RomanVaskin/driveset"; exit 1 ;;
+            esac
 
             git fetch origin main
             git reset --hard origin/main
+
+            # The deployed checkout must contain the commit that triggered this run.
+            git merge-base --is-ancestor "$DEPLOY_SHA" HEAD || {
+              echo "::error::deployed HEAD $(git rev-parse HEAD) does not contain $DEPLOY_SHA"
+              exit 1
+            }
+
+            # The service must run from the directory we just updated.
+            UNIT_DIR="$(systemctl show "$SERVICE" -p WorkingDirectory --value)"
+            [ "$(cd "$UNIT_DIR" && pwd -P)" = "$(pwd -P)" ] || {
+              echo "::error::$SERVICE WorkingDirectory is $UNIT_DIR, not $DEPLOY_DIR"
+              exit 1
+            }
 
             corepack enable
             pnpm install --frozen-lockfile
             pnpm build
 
-            systemctl restart driveset.service
-            systemctl is-active --quiet driveset.service
+            systemctl restart "$SERVICE"
+            systemctl is-active --quiet "$SERVICE"
 
             sleep 3
             curl -f http://127.0.0.1:3230
+
+            echo "deployed $(git rev-parse HEAD) from $(pwd -P) on $(hostname)"
+
+            # Lead delivery needs both CRM variables in the running service (names only, never values).
+            PID="$(systemctl show "$SERVICE" -p MainPID --value)"
+            for NAME in OLNOO_CRM_URL OLNOO_CRM_API_KEY; do
+              if [ -r "/proc/$PID/environ" ]; then
+                if tr '\0' '\n' < "/proc/$PID/environ" | grep -q "^$NAME=."; then
+                  echo "$NAME: SET"
+                else
+                  echo "::error::$NAME is MISSING in $SERVICE; /api/lead will answer 503"
+                  exit 1
+                fi
+              else
+                echo "$NAME: UNKNOWN (process environment not readable)"
+              fi
+            done

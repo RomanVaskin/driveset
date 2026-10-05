@@ -18,6 +18,8 @@
 | SSL | Certbot / Let's Encrypt |
 | Заявки | `/api/lead` → OLNOO CRM (`OLNOO_CRM_URL`, `OLNOO_CRM_API_KEY` — server-only env) |
 
+KZ-сервер `213.155.29.140` (hostname `vdska`, `/opt/olnoo/projects/driveset`) — **тоже не production**: последний деплой на него — Deploy DriveSet #27 (`a1a9b1b`, 2026-10-03), после переключения `SERVER_HOST` деплой туда не идёт. Его `driveset.service` и `/opt/olnoo/secrets/driveset.env` не отражают состояние production: не использовать для проверок `HEAD`, env и заявок.
+
 REG.RU `194.67.113.146` — **не production и не готовый rollback**, а временная legacy-копия: после переключения деплой её не обновляет.
 
 ## Deploy flow
@@ -25,6 +27,8 @@ REG.RU `194.67.113.146` — **не production и не готовый rollback**,
 Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH на Beget →
 `git fetch` + `git reset --hard origin/main` → `corepack enable` → `pnpm install --frozen-lockfile` →
 `pnpm build` → `systemctl restart driveset.service` → `systemctl is-active` → `curl http://127.0.0.1:3230`.
+
+Перед рестартом и после него `deploy.yml` fail-fast проверяет: `origin` — `RomanVaskin/driveset`; деплоенный `HEAD` содержит SHA запуска; `WorkingDirectory` у `driveset.service` совпадает с `/opt/driveset`; сервис отвечает на `:3230`; `OLNOO_CRM_URL` и `OLNOO_CRM_API_KEY` заданы в процессе сервиса (только SET/MISSING, значения не печатаются; `UNKNOWN`, если окружение процесса нечитаемо). В логе — строка `deployed <sha> from <dir> on <hostname>`.
 
 GitHub Secrets: `SERVER_HOST` (→ `31.207.74.26`), `SERVER_USER`, `SERVER_SSH_KEY`.
 Media и production env в Git не входят и деплоем не меняются.
