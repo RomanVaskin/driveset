@@ -1,3 +1,4 @@
+import { isTestSessionActive } from './test-session-state.ts'
 import { quizPackageOptions } from './wrapping-config.ts'
 
 export type MarketingEventName =
@@ -25,6 +26,8 @@ export type MarketingEventName =
 export type MarketingEventPayload = {
   package?: string
   channel?: 'telegram' | 'max' | 'phone' | 'photo'
+  /** Added only while a verified test session is active (Test Traffic v1); never by callers. */
+  olnoo_traffic?: 'test'
 }
 
 const contactChannels = {
@@ -54,6 +57,7 @@ export function trackMarketingEvent(name: MarketingEventName, payload: Marketing
     safePayload.package = payload.package
   }
   if (name in contactChannels) safePayload.channel = contactChannels[name as keyof typeof contactChannels]
+  if (isTestSessionActive()) safePayload.olnoo_traffic = 'test'
   try {
     // The optional callback fires once Metrika has sent the goal (used before same-tab navigation).
     if (callback) window.ym(counterId, 'reachGoal', name, safePayload, callback)

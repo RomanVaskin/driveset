@@ -242,6 +242,20 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     Блок «до/после» не выводится: в проекте нет реальных пар фото; реальные
     работы — только `category=dry-cleaning` из production manifest.
 
+19. **Test Mode (Test Traffic v1, PR C — сессия принимается, rollout не активен).**
+    Подписанная ссылка olnoo-admin `/olnoo-test?t=<token>` проверяется на сервере
+    (verifier — дословная копия из olnoo-admin, spec v1), при успехе ставит
+    host-only `HttpOnly; Secure; SameSite=Lax` cookie `olnoo_test` с самим токеном
+    до его `exp` и всегда отвечает 303 на чистый `/` без тела, чтобы токен не
+    попал в JS, адресную строку, first-touch и Метрику. Статус отдаёт только
+    `{test, expiresAt, sessionId}` (токен не возвращается); при `test:true`
+    визит помечается `ym(..., 'params', { olnoo_traffic: 'test' })` (visit
+    params, не `userParams`). Токен — bearer-capability до истечения, без
+    серверной сессии и БД. CRM пока не получает и не классифицирует сессию
+    (`/api/lead` не менялся), Unified и CPL не переключены, `REAL` не
+    выставляется, исторический UTM-fallback сохранён. Секрет
+    `OLNOO_TEST_SECRET_DRIVESET` — только server-side env.
+
 ## Деплой
 
 Автодеплой по push в `main`: `.github/workflows/deploy.yml` подключается по SSH

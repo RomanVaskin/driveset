@@ -33,6 +33,25 @@ Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH на 
 GitHub Secrets: `SERVER_HOST` (→ `31.207.74.26`), `SERVER_USER`, `SERVER_SSH_KEY`.
 Media и production env в Git не входят и деплоем не меняются.
 
+## Серверный env и секрет Test Mode
+
+`driveset.service` читает env из `EnvironmentFile=/opt/driveset.env` (drop-in `/etc/systemd/system/driveset.service.d/env.conf`). В файле уже лежат `OLNOO_CRM_URL` и `OLNOO_CRM_API_KEY`; деплой из GitHub этот файл не меняет. Для подписанной тестовой ссылки (Test Traffic v1, PR C) нужен **тот же** секрет, что у olnoo-admin (`OLNOO_TEST_SECRET_DRIVESET`), добавленный вручную **одной строкой**, без затирания остальных:
+
+```bash
+# 1. убедиться, что ключа ещё нет (печатает только число):
+grep -c '^OLNOO_TEST_SECRET_DRIVESET=' /opt/driveset.env
+# 2. дописать ровно один ключ (значение вводится скрыто и не попадает ни в историю, ни в вывод), сохранив остальные строки:
+read -rs -p 'OLNOO_TEST_SECRET_DRIVESET: ' V; echo
+if [ "${#V}" -ge 32 ]; then printf '%s\n' "OLNOO_TEST_SECRET_DRIVESET=$V" >> /opt/driveset.env; else echo 'too short: nothing written'; fi; unset V
+chmod 600 /opt/driveset.env
+# 3. перезапустить сервис (daemon-reload не нужен — путь EnvironmentFile прежний):
+systemctl restart driveset.service && systemctl is-active driveset.service
+# 4. проверить только наличие, не значение:
+tr '\0' '\n' < /proc/$(systemctl show driveset.service -p MainPID --value)/environ | grep -c '^OLNOO_TEST_SECRET_DRIVESET=.'
+```
+
+Если ключ уже есть (шаг 1 вывел `1`), его надо **заменить**, а не дописывать: `sed -i '/^OLNOO_TEST_SECRET_DRIVESET=/d' /opt/driveset.env` перед шагом 2. Команды не трогают `OLNOO_CRM_URL` и `OLNOO_CRM_API_KEY`.
+
 ## Smoke checks
 
 На сервере:

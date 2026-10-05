@@ -200,6 +200,27 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 | `.env.production` | Публичный ID реального счётчика Метрики через `NEXT_PUBLIC_YANDEX_METRIKA_ID`; Next.js встраивает значение при production build. |
 | Server-only env | `OLNOO_CRM_URL` (база `https://admin.olnoo.com`) и `OLNOO_CRM_API_KEY` для `/api/lead`; значения не должны попадать в `NEXT_PUBLIC_*` или Git. |
 
+## Test Mode: signed Test Link (Test Traffic v1, PR C)
+
+**Статус: DriveSet принимает подписанную тестовую ссылку и ставит безопасную тестовую сессию. Rollout Test Traffic v1 ещё НЕ активен.** CRM-классификация по сессии пока НЕ подключена (`/api/lead` и его payload не менялись, `traffic_class` и `REAL` не ставятся), Unified не переключён, CPL-семантика прежняя, исторический UTM-fallback (`utm_content=a2_production_test`, `utm_term=test_attribution`) работает как раньше.
+
+| Файл | Роль |
+| --- | --- |
+| `lib/test-session-token.ts` | Верификатор токена, **дословная копия** `lib/test-session-token.ts` из olnoo-admin (PR B, spec v1): `olnoo-t1.<payloadB64url>.<signatureB64url>`, payload `{v:1,p,iat,exp,sid,k}`, подпись HMAC-SHA256 над `"olnoo-t1." + payloadB64url`. Импортирует только `node:crypto`; тест фиксирует golden vector и список импортов. |
+| `lib/test-session.ts` | Серверная обёртка: проект `driveset`, секрет `OLNOO_TEST_SECRET_DRIVESET` (server-only env, версия ключа 1), сборка `Set-Cookie`, чтение cookie, `statusFromCookieHeader`. |
+| `app/olnoo-test/route.ts` | `GET /olnoo-test?t=<token>` — единственная точка входа. |
+| `app/api/olnoo-test/status/route.ts` | `GET /api/olnoo-test/status`. |
+| `lib/test-session-client.ts`, `lib/test-session-state.ts` | Браузер: запрос статуса и маркер Метрики. |
+
+- **Маршрут `/olnoo-test`:** проверяет токен на сервере. При любом исходе (валидный, битый, просроченный, чужой проект, нет `t`, нет секрета) отвечает одинаковым **303 на чистый `/` без тела** — токен не попадает ни в клиентский JS, ни в адресную строку, ни в first-touch (`landing_url`/`landing_path`), ни в Метрику; причина не раскрывается. **Fail-closed:** cookie ставится только для токена, прошедшего проверку. Токен и секрет не логируются.
+- **Cookie `olnoo_test`:** значение — сам bearer-токен (его перепроверит CRM-часть позже); `HttpOnly; Secure; SameSite=Lax; Path=/`, **host-only** (без `Domain`), `Expires`/`Max-Age` ровно до `exp` токена; не продлевается (нет rolling session), в БД ничего не хранится, отдельного server-side session id нет.
+- **Статус `GET /api/olnoo-test/status`:** `{ "test": true, "expiresAt", "sessionId" }` для cookie, которая проходит проверку прямо сейчас, иначе `{ "test": false }`. Cookie перепроверяется на каждом запросе; токен, секрет и причина не возвращаются; cookie не ставится и не обновляется; `Cache-Control: no-store`.
+- **Метрика:** после загрузки `MarketingBootstrap` (после `init`/`hit`) спрашивает статус и **только при `test: true`** вызывает `ym(counter, 'params', { olnoo_traffic: 'test' })` — **параметры визита**. **`userParams` не используется:** он закрепляется за ClientID и загрязнил бы будущие реальные визиты того же браузера. Маркер не ставится до получения статуса; один запрос статуса на загрузку страницы; на один путь маркер ставится один раз (ре-рендер и dev double-effect не дублируют), при SPA-переходе (новый `hit`) — снова; после истечения сессии прекращается. Во время активной сессии к параметрам целей (`reachGoal`) дополнительно добавляется `olnoo_traffic: 'test'` (вторично; `package`/`channel` сохраняются).
+- **Секрет:** `OLNOO_TEST_SECRET_DRIVESET` — тот же точно секрет, что у olnoo-admin; читается только на сервере (не `NEXT_PUBLIC_`, в клиентский бандл не попадает, не в Git). Доставляется вручную в `/opt/driveset.env` (GitHub-деплой DriveSet секреты не доставляет).
+- **Replay:** v1-токен — bearer-capability, многоразовый до `exp` (2 ч по умолчанию, максимум 12 ч). Одноразовости, nonce в БД, revocation list и серверной сессии нет. В access-логе nginx query-строка `?t=` сохраняется (ограничено TTL).
+- **Host:** cookie host-only; ссылка выпускается на домен проекта (`https://driveset.ru/olnoo-test?t=...`), редирект относительный (`Location: /`), поэтому остаёмся на том же хосте. Поведение `www` → apex на nginx не менялось и не проверялось.
+- **Не входит:** отправка сессии в CRM, `signed_session`/`traffic_class`, `REAL`/`web_default`, known contacts, UI, изменение Unified/CPL.
+
 ## Деплой (production, Beget)
 
 Краткий runbook (topology, deploy flow, smoke checks, rollback) — `OLNOO_PRODUCTION.md`.

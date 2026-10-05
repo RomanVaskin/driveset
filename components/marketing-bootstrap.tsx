@@ -6,6 +6,7 @@ import { captureFirstTouch } from '@/lib/campaign-attribution'
 import { handleContactClick } from '@/lib/contact-click'
 import { trackMarketingEvent } from '@/lib/marketing-events'
 import { requestMetrikaClientId } from '@/lib/metrika-client-id'
+import { applyTestSessionMarker } from '@/lib/test-session-client'
 import { site } from '@/lib/site-config'
 
 const counterId = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID)
@@ -54,6 +55,9 @@ export function MarketingBootstrap() {
     } catch {
       // A blocked counter must not affect the site.
     }
+
+    // Test Mode: once the server confirms a verified test session, mark this Metrika visit (visit params). Never before.
+    void applyTestSessionMarker(counterId, window.location.pathname)
     return () => document.removeEventListener('click', onClick)
   }, [pathname])
 
