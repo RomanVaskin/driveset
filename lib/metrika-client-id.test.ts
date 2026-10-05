@@ -64,3 +64,17 @@ test('a request made before window.ym exists can be repeated once it does', () =
   requestMetrikaClientId(1)
   assert.equal(calls.length, 1)
 })
+
+test('a throwing ym does not consume the request: a later call retries and caches the ClientID', () => {
+  browser = installBrowser({ url: 'https://driveset.ru/' })
+  const working = window.ym
+  window.ym = (() => { throw new Error('ym broken') }) as unknown as typeof window.ym
+  assert.doesNotThrow(() => requestMetrikaClientId(1))
+  assert.equal(browser.ymCalls.length, 0)
+  window.ym = working
+  requestMetrikaClientId(1)
+  assert.equal(browser.ymCalls.length, 1)
+  assert.deepEqual(browser.ymCalls[0].slice(0, 2), [1, 'getClientID'])
+  browser.clientIdCallbacks[0]('12345')
+  assert.equal(getMetrikaClientId(), '12345')
+})

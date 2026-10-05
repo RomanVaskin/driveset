@@ -13,11 +13,12 @@ export function isValidClientId(value: unknown): value is string {
 /** Asks Metrika once per page load; a no-op until `window.ym` exists. The callback runs whenever (if ever) the tag answers. */
 export function requestMetrikaClientId(counterId: number): void {
   if (requested || typeof window === 'undefined' || typeof window.ym !== 'function') return
-  requested = true
   try {
     window.ym(counterId, 'getClientID', (value: unknown) => {
       if (isValidClientId(value)) cached = value
     })
+    // Marked only once the request was actually handed to ym: a throw leaves a later call free to retry.
+    requested = true
   } catch {
     // A blocked or broken counter must not affect the site.
   }
