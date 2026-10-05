@@ -3,34 +3,39 @@
 // Without crypto.randomUUID the field is simply not sent — the lead never depends on it.
 // NOT a Metrika visit id and not proof that a Metrika visit has been linked to the lead.
 
-// The id is bound to a stable key of the BUSINESS fields of the lead (never analytics metadata): the same lead retried
-// keeps its id, an edited lead gets a new one, so the CRM can never read a different lead as a replay of a lost one.
-// One slot: starting another lead replaces it; a finished lead clears the slot only if it still holds that lead's id.
+// Pending ids are bound to a stable key of the BUSINESS lead (draft fields + submit pagePath; never analytics metadata):
+// the same lead retried keeps its id whatever else was submitted in between, an edited lead or another page gets a new
+// one, so the CRM can never read a different lead as a replay of a lost one. A confirmed 201 drops only that lead's id.
+// Page memory only (no storage, no timers); entries exist just for attempts that have not been confirmed.
 
-let current: { key: string; id: string } | null = null
+const pending = new Map<string, string>()
 
-/** Order-independent key of the business draft. */
-export function leadDraftKey(draft: object): string {
+/** Order-independent key of the business draft plus the page it is submitted from. */
+export function leadDraftKey(draft: object, pagePath: string): string {
   const record = draft as Record<string, unknown>
-  return JSON.stringify(Object.keys(record).sort().map((k) => [k, record[k]]))
+  return JSON.stringify([pagePath, Object.keys(record).sort().map((k) => [k, record[k]])])
 }
 
 export function getLeadTrackingId(key: string): string | null {
-  if (current && current.key === key) return current.id
-  current = null
+  const existing = pending.get(key)
+  if (existing) return existing
   try {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') current = { key, id: crypto.randomUUID() }
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      const id = crypto.randomUUID()
+      pending.set(key, id)
+      return id
+    }
   } catch {
-    current = null
+    // no id: the lead goes out without one
   }
-  return current ? current.id : null
+  return null
 }
 
 export function releaseLeadTrackingId(key: string): void {
-  if (current && current.key === key) current = null
+  pending.delete(key)
 }
 
 /** For tests only. */
 export function resetLeadTracking(): void {
-  current = null
+  pending.clear()
 }

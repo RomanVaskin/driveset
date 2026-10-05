@@ -107,7 +107,7 @@ describe('submitLead analytics', () => {
     await submitLead(draft)
     requestMetrikaClientId(COUNTER)
     browser.clientIdCallbacks[0]('555')
-    browser.navigate('https://driveset.ru/other?yclid=9')
+    browser.navigate('https://driveset.ru/?yclid=9')
     resetFirstTouchMemory()
     browser.store.clear()
     await submitLead(draft)
@@ -127,6 +127,41 @@ describe('submitLead analytics', () => {
     await submitLead(draft)
     await submitLead(other)
     assert.notEqual(calls[3].body.lead_tracking_id, calls[4].body.lead_tracking_id)
+  })
+
+  it('A fails, B is submitted, A retried: A keeps its original id; A success leaves B pending', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    const b = { ...draft, phone: '+79991112233' }
+    responses.push(() => { throw new Error('network') }) // A
+    responses.push(() => { throw new Error('network') }) // B
+    await submitLead(draft)
+    await submitLead(b)
+    await submitLead(draft) // A retry, succeeds
+    assert.equal(calls[2].body.lead_tracking_id, calls[0].body.lead_tracking_id)
+    assert.notEqual(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    await submitLead(b) // B retry: its id survived A's success
+    assert.equal(calls[3].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('the same draft on a different pagePath is a different lead; the same pagePath retries with one id', async () => {
+    setup({ url: 'https://driveset.ru/okleyka-avto' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    await submitLead(draft)
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    assert.equal(calls[0].body.pagePath, '/okleyka-avto')
+    responses.push(() => { throw new Error('network') })
+    browser.navigate('https://driveset.ru/polirovka-avto')
+    await submitLead(draft)
+    assert.equal(calls[2].body.pagePath, '/polirovka-avto')
+    assert.notEqual(calls[2].body.lead_tracking_id, calls[0].body.lead_tracking_id)
+  })
+
+  it('a new lead with the same business key after a confirmed 201 gets a new id', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    await submitLead(draft)
+    await submitLead(draft)
+    assert.notEqual(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
   })
 
   it('keeps the tracking id after a non-201 response', async () => {

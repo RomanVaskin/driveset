@@ -46,7 +46,9 @@ export async function submitLead(
   draft: LeadDraft,
   successEvent: Extract<MarketingEventName, 'lead_submit' | 'polirovka_lead_submit' | 'himchistka_lead_submit'> = 'lead_submit',
 ): Promise<{ ok: boolean; error?: string }> {
-  const draftKey = leadDraftKey(draft)
+  // Fixed once: the same page path feeds the business key and the request body.
+  const pagePath = window.location.pathname
+  const draftKey = leadDraftKey(draft, pagePath)
   try {
     const response = await fetch('/api/lead', {
       method: 'POST',
@@ -55,7 +57,7 @@ export async function submitLead(
         ...draft,
         ...collectAnalytics(draftKey),
         // page_path: where the form was actually submitted. landing_page (from the first touch) stays the first-touch URL.
-        pagePath: window.location.pathname,
+        pagePath,
       }),
     })
     const result: unknown = await response.json().catch(() => null)
