@@ -2,9 +2,10 @@
 
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
-import { captureCampaignAttribution } from '@/lib/campaign-attribution'
+import { captureFirstTouch } from '@/lib/campaign-attribution'
 import { handleContactClick } from '@/lib/contact-click'
 import { trackMarketingEvent } from '@/lib/marketing-events'
+import { requestMetrikaClientId } from '@/lib/metrika-client-id'
 import { site } from '@/lib/site-config'
 
 const counterId = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID)
@@ -14,7 +15,7 @@ export function MarketingBootstrap() {
   const pathname = usePathname()
 
   useEffect(() => {
-    captureCampaignAttribution()
+    captureFirstTouch()
     const onClick = (event: MouseEvent) =>
       handleContactClick(event, {
         telegramHref: site.telegramHref,
@@ -44,6 +45,9 @@ export function MarketingBootstrap() {
         // A blocked counter must not affect the site.
       }
     }
+
+    // Best-effort ClientID for the lead form: asked once, cached when (and if) the tag answers; nothing waits for it.
+    requestMetrikaClientId(counterId)
 
     try {
       window.ym?.(counterId, 'hit', window.location.href)

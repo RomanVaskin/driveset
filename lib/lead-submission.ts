@@ -1,5 +1,8 @@
-import { captureCampaignAttribution } from '@/lib/campaign-attribution'
-import { trackMarketingEvent, type MarketingEventName } from '@/lib/marketing-events'
+import { captureFirstTouch, readFirstTouch } from './campaign-attribution.ts'
+import { touchToLeadFields } from './first-touch.ts'
+import { getLeadTrackingId, releaseLeadTrackingId } from './lead-tracking.ts'
+import { trackMarketingEvent, type MarketingEventName } from './marketing-events.ts'
+import { getMetrikaClientId } from './metrika-client-id.ts'
 
 export type LeadDraft = {
   name: string
@@ -15,6 +18,29 @@ export type LeadDraft = {
   website: string
 }
 
+/**
+ * Attribution identifiers for the lead body. Best-effort and synchronous: whatever is already available is sent
+ * (first-touch, tracking id, cached ClientID); nothing is awaited and any failure yields {} — analytics must never
+ * cost a lead.
+ */
+function collectAnalytics(): Record<string, string> {
+  let fields: Record<string, string> = {}
+  try {
+    fields = touchToLeadFields(readFirstTouch() ?? captureFirstTouch())
+  } catch {
+    fields = {}
+  }
+  try {
+    const trackingId = getLeadTrackingId()
+    if (trackingId) fields.lead_tracking_id = trackingId
+    const clientId = getMetrikaClientId()
+    if (clientId) fields.metrika_client_id = clientId
+  } catch {
+    // keep whatever was collected
+  }
+  return fields
+}
+
 /** `successEvent` lets each landing keep its own Metrika funnel; it fires only after `201 {ok:true}`. */
 export async function submitLead(
   draft: LeadDraft,
@@ -26,7 +52,8 @@ export async function submitLead(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...draft,
-        ...captureCampaignAttribution(),
+        ...collectAnalytics(),
+        // page_path: where the form was actually submitted. landing_page (from the first touch) stays the first-touch URL.
         pagePath: window.location.pathname,
       }),
     })
@@ -39,6 +66,8 @@ export async function submitLead(
     if (!result || typeof result !== 'object' || !('ok' in result) || result.ok !== true) {
       return { ok: false, error: 'Не удалось подтвердить отправку заявки.' }
     }
+    // A confirmed lead ends this attempt: the next lead gets a new tracking id. Goal parameters carry no identifiers.
+    releaseLeadTrackingId()
     trackMarketingEvent(successEvent)
     return { ok: true }
   } catch {

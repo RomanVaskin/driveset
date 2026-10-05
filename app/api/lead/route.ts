@@ -1,6 +1,6 @@
-import { createHash } from 'node:crypto'
 import { NextResponse } from 'next/server'
-import { services } from '@/lib/site-config'
+import { leadFingerprint, splitLeadBody } from '@/lib/lead-analytics'
+import { buildCrmLeadBody } from '@/lib/lead-crm-payload'
 
 export const runtime = 'nodejs'
 
@@ -26,7 +26,6 @@ const fieldLimits = {
   utm_campaign: 200,
   utm_content: 200,
   utm_term: 200,
-  yclid: 200,
   pagePath: 160,
   website: 0,
 } as const
@@ -87,44 +86,6 @@ function parseLead(value: unknown): LeadInput | null {
   return input
 }
 
-function message(input: LeadInput) {
-  const car = [input.vehicleMake, input.vehicleModel, input.vehicleYear].filter(Boolean).join(' ')
-  return [
-    `Канал: ${input.contactChannel}`,
-    car && `Автомобиль: ${car}`,
-    input.package && `Услуга: ${input.package}`,
-    input.displayedPrice && `Показанная цена: ${input.displayedPrice}`,
-    input.gift && `Подарок: ${input.gift}`,
-    input.timing && `Срок: ${input.timing}`,
-    input.yclid && `YCLID: ${input.yclid}`,
-  ].filter(Boolean).join('\n')
-}
-
-/** CRM `service` column per landing, derived server-side from the validated pagePath. */
-const serviceByPage: Record<string, string> = {
-  '/okleyka-avto': 'okleyka-avto',
-  '/polirovka-avto': 'polirovka-avto',
-  '/himchistka-avto': 'himchistka-avto',
-}
-
-/**
- * Homepage form: `package` is the chosen service title from `services`; only
- * those titles map to a landing slug. Anything else («Другое / не знаю», nothing
- * chosen) is a general request — `Other`, the value the OLNOO CRM already
- * receives from olnoo.com.
- */
-const serviceByHomeChoice: Record<string, string> = {
-  wrapping: 'okleyka-avto',
-  polishing: 'polirovka-avto',
-  cleaning: 'himchistka-avto',
-}
-
-function crmService(input: LeadInput) {
-  if (input.pagePath !== '/') return serviceByPage[input.pagePath] ?? ''
-  const choice = services.find((item) => item.title === input.package)
-  return (choice && serviceByHomeChoice[choice.id]) || 'Other'
-}
-
 function crmEndpoint(): URL | null {
   const configured = process.env.OLNOO_CRM_URL
   if (!configured || !process.env.OLNOO_CRM_API_KEY) return null
@@ -151,8 +112,12 @@ export async function POST(request: Request) {
   if (current.count > 5) return failure(429, 'Слишком много запросов. Попробуйте позже.')
 
   let input: LeadInput | null
+  let analytics: ReturnType<typeof splitLeadBody>['analytics']
   try {
-    input = parseLead(await readBody(request))
+    // Analytics identifiers are optional and best-effort: split off (invalid ones dropped) before the strict check.
+    const split = splitLeadBody(await readBody(request))
+    analytics = split.analytics
+    input = parseLead(split.business)
   } catch (error) {
     if (error instanceof Error && error.message === 'body too large') return failure(413, 'Слишком большой запрос.')
     return failure(400, 'Некорректные данные заявки.')
@@ -162,7 +127,8 @@ export async function POST(request: Request) {
   const url = crmEndpoint()
   if (!url) return failure(503, 'Отправка заявки временно недоступна.')
 
-  const fingerprint = createHash('sha256').update(ip + JSON.stringify(input)).digest('hex')
+  // Business fields only: analytics metadata can never make two identical requests look different.
+  const fingerprint = leadFingerprint(ip, input)
   if ((duplicates.get(fingerprint) ?? 0) > now) return failure(409, 'Такая заявка уже отправлена.')
   duplicates.set(fingerprint, now + duplicateMs)
 
@@ -173,21 +139,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${process.env.OLNOO_CRM_API_KEY}`,
       },
-      body: JSON.stringify({
-        project: 'driveset',
-        // OLNOO CRM requires a non-empty name: a phone-only lead gets a technical title, not a fake person name.
-        name: input.name || 'Заявка DriveSet',
-        phone: input.phone,
-        source: 'Ads',
-        service: crmService(input),
-        pagePath: input.pagePath,
-        utm_source: input.utm_source,
-        utm_medium: input.utm_medium,
-        utm_campaign: input.utm_campaign,
-        utm_content: input.utm_content,
-        utm_term: input.utm_term,
-        message: message(input),
-      }),
+      body: JSON.stringify(buildCrmLeadBody(input, analytics)),
       cache: 'no-store',
       signal: AbortSignal.timeout(7_000),
     })

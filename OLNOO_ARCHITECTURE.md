@@ -109,7 +109,7 @@ media и квиз). `/api/lead` — единственное backend-исклю�
     без изменений контракта): `vehicleModel` = введённая строка, `package` =
     название пакета, `gift` = выбранный подарок (только `full-ppf`, строка
     «Подарок: …» в сообщении лида), `displayedPrice` = строка акции, если она
-    была показана, `contactChannel`, `pagePath`, UTM, `yclid`.
+    была показана, `contactChannel`, `pagePath`, UTM, `yclid` (из first-touch).
     При ответе не 201 форма показывает текст ошибки из `/api/lead`, данные
     остаются в форме, повторная отправка доступна; success не показывается.
     `lead_submit` вызывается только после `201 {ok:true}` от `/api/lead`.
@@ -123,12 +123,32 @@ media и квиз). `/api/lead` — единственное backend-исклю�
 
 14. **Атрибуция и события.** `marketing-bootstrap.tsx` работает только в браузере
     на всех маршрутах:
-    при входе и переходах сохраняет первое значение каждого из `utm_source`,
-    `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `yclid` в
-    `sessionStorage`. Реальный публичный ID лежит в `.env.production` как
+    при входе и переходах сохраняет один атомарный first-touch в `localStorage`
+    (`landing_url`, `landing_path`, `referrer`, `utm_*`, `yclid`, `first_seen_at`;
+    поля разных визитов не смешиваются; органический/прямой touch заменяется
+    один раз касанием с рекламными параметрами, сохранённый рекламный не
+    перезаписывается; TTL нет — решение отложено). Реальный публичный ID лежит в `.env.production` как
     `NEXT_PUBLIC_YANDEX_METRIKA_ID` и встраивается при сборке. Bootstrap загружает
     тег Метрики с Вебвизором и отправляет просмотры страниц App Router; без ID
     запросов к Метрике нет.
+    **Attribution Capture A2 (этот PR, не production-confirmed).** Форма шлёт в
+    `/api/lead` дополнительно `lead_tracking_id` (UUID на попытку, тот же при
+    повторе, новый после 201; нет `randomUUID` — поле опускается),
+    `metrika_client_id` (только из `ym(id,'getClientID',cb)`, кэшируется заранее,
+    не ожидается, только строка из цифр; без `_ym_uid`/cookie), `yclid` и
+    `first_seen_at` из first-touch, `landing_page` = URL первого касания,
+    `referrer` первого касания; `pagePath` — страница отправки. Сервер валидирует
+    эти поля best-effort: невалидное необязательное значение отбрасывается
+    (иначе CRM ответит 400), заявка проходит. В CRM уходят
+    `lead_tracking_id`, `metrika_client_id`, `yclid`, `first_seen_at`, `pageUrl`
+    (=landing_page), `referrer`. Fingerprint дублей считается только по бизнес-полям.
+    Идентификаторы не пишутся в логи и не передаются в параметрах `reachGoal`.
+    Конвейер: Direct Observer READY; CRM Observer READY; Attribution A1 (CRM)
+    READY/production-confirmed; **A2 DriveSet — этот PR**; Metrika Observer — NEXT;
+    Unified Analytics, AI Agent, Writes — LATER. Ограничения: ClientID
+    best-effort и может отсутствовать; ClientID ≠ visitID; `lead_tracking_id` ≠
+    Metrika visitID; `yclid` может отсутствовать; связь запрос→лид не доказана.
+    `source='Ads'` в CRM по-прежнему жёстко задан (отложено).
     `marketing-events.ts` отправляет цели квиза/кликов с белым списком параметров;
     воронка квиза `/okleyka-avto` с 28.09.2026 (данные до и после даты не
     смешивать): `quiz_start` (первый клик по CTA `#calculator` или первый ввод)
