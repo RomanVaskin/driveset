@@ -61,21 +61,10 @@ jobs:
             systemctl is-active --quiet "$SERVICE"
 
             sleep 3
-            curl -f http://127.0.0.1:3230
+            # No body: the response is a single 70 KB line that the SSH action's log reader cannot handle.
+            curl -fsS -o /dev/null http://127.0.0.1:3230
 
             echo "deployed $(git rev-parse HEAD) from $(pwd -P) on $(hostname)"
 
-            # Lead delivery needs both CRM variables in the running service (names only, never values).
-            PID="$(systemctl show "$SERVICE" -p MainPID --value)"
-            for NAME in OLNOO_CRM_URL OLNOO_CRM_API_KEY; do
-              if [ -r "/proc/$PID/environ" ]; then
-                if tr '\0' '\n' < "/proc/$PID/environ" | grep -q "^$NAME=."; then
-                  echo "$NAME: SET"
-                else
-                  echo "::error::$NAME is MISSING in $SERVICE; /api/lead will answer 503"
-                  exit 1
-                fi
-              else
-                echo "$NAME: UNKNOWN (process environment not readable)"
-              fi
-            done
+            # Lead delivery needs the CRM variables in the running service (names and yes/no only, never values).
+            sh scripts/check-lead-env.sh "$SERVICE"

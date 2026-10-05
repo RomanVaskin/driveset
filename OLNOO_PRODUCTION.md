@@ -28,7 +28,7 @@ Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → SSH на 
 `git fetch` + `git reset --hard origin/main` → `corepack enable` → `pnpm install --frozen-lockfile` →
 `pnpm build` → `systemctl restart driveset.service` → `systemctl is-active` → `curl http://127.0.0.1:3230`.
 
-Перед рестартом и после него `deploy.yml` fail-fast проверяет: `origin` — `RomanVaskin/driveset`; деплоенный `HEAD` содержит SHA запуска; `WorkingDirectory` у `driveset.service` совпадает с `/opt/driveset`; сервис отвечает на `:3230`; `OLNOO_CRM_URL` и `OLNOO_CRM_API_KEY` заданы в процессе сервиса (только SET/MISSING, значения не печатаются; `UNKNOWN`, если окружение процесса нечитаемо). В логе — строка `deployed <sha> from <dir> on <hostname>`.
+Перед рестартом и после него `deploy.yml` fail-fast проверяет: `origin` — `RomanVaskin/driveset`; деплоенный `HEAD` содержит SHA запуска; `WorkingDirectory` у `driveset.service` совпадает с `/opt/driveset`; сервис отвечает на `:3230` (`curl -o /dev/null`: тело страницы — одна строка ~70 КБ, SSH-action не может её прочитать, и весь последующий вывод терялся); затем `scripts/check-lead-env.sh` печатает EnvironmentFiles, WorkingDirectory и для `OLNOO_CRM_URL`/`OLNOO_CRM_API_KEY` — SET/MISSING/EMPTY в процессе сервиса и в env-файлах, а для URL — yes/no по правилам `/api/lead` (https, без userinfo/query/hash); значения и хост не печатаются; deploy падает, если заявки работать не могут. В логе — строка `deployed <sha> from <dir> on <hostname>`.
 
 GitHub Secrets: `SERVER_HOST` (→ `31.207.74.26`), `SERVER_USER`, `SERVER_SSH_KEY`.
 Media и production env в Git не входят и деплоем не меняются.
