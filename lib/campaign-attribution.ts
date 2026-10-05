@@ -1,52 +1,48 @@
-export const attributionKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'yclid'] as const
+// Browser side of first-touch attribution: reads/writes ONE atomic touch in localStorage (see first-touch.ts for the rules).
+// A storage failure (private mode, quota, security error) never throws: the touch is then kept in memory for the page lifetime.
+import { buildTouch, chooseTouch, parseStoredTouch, type FirstTouch } from './first-touch.ts'
 
-export type AttributionKey = (typeof attributionKeys)[number]
-export type CampaignAttribution = Partial<Record<AttributionKey, string>>
+export type { FirstTouch } from './first-touch.ts'
 
-const storageKey = 'driveset_campaign_attribution'
-const maxValueLength = 200
+const storageKey = 'driveset_first_touch'
+let memoryTouch: FirstTouch | null = null
 
-function cleanValue(value: string | null) {
-  return value?.trim().slice(0, maxValueLength) || undefined
-}
-
-export function captureCampaignAttribution(): CampaignAttribution {
-  if (typeof window === 'undefined') return {}
-
-  const previous = readCampaignAttribution()
-  const params = new URLSearchParams(window.location.search)
-  const incoming: CampaignAttribution = {}
-
-  for (const key of attributionKeys) {
-    const value = cleanValue(params.get(key))
-    if (value) incoming[key] = value
-  }
-
-  const result = { ...incoming, ...previous }
-
-  if (Object.keys(result).length > 0) {
-    try {
-      window.sessionStorage.setItem(storageKey, JSON.stringify(result))
-    } catch {
-      // Storage can be unavailable in privacy modes; attribution remains in component state.
-    }
-  }
-
-  return result
-}
-
-export function readCampaignAttribution(): CampaignAttribution {
-  if (typeof window === 'undefined') return {}
+function readStored(): FirstTouch | null {
   try {
-    const raw = window.sessionStorage.getItem(storageKey)
-    if (!raw) return {}
-    const parsed = JSON.parse(raw) as Record<string, unknown>
-    const result: CampaignAttribution = {}
-    for (const key of attributionKeys) {
-      if (typeof parsed[key] === 'string') result[key] = cleanValue(parsed[key] as string)
-    }
-    return result
+    return parseStoredTouch(window.localStorage.getItem(storageKey))
   } catch {
-    return {}
+    return null
   }
+}
+
+/** The current touch without changing anything. */
+export function readFirstTouch(): FirstTouch | null {
+  if (typeof window === 'undefined') return null
+  return readStored() ?? memoryTouch
+}
+
+/** Records this page view's touch per the first-touch rules and returns the touch in force. */
+export function captureFirstTouch(now: number = Date.now()): FirstTouch | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const stored = readStored() ?? memoryTouch
+    const incoming = buildTouch({ href: window.location.href, referrer: document.referrer, now })
+    const chosen = incoming ? chooseTouch(stored, incoming) : stored
+    if (chosen && chosen !== stored) {
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(chosen))
+      } catch {
+        // Storage can be unavailable; the memory copy below still serves this page.
+      }
+    }
+    memoryTouch = chosen
+    return chosen
+  } catch {
+    return memoryTouch
+  }
+}
+
+/** For tests only. */
+export function resetFirstTouchMemory() {
+  memoryTouch = null
 }

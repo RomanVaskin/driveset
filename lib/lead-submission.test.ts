@@ -1,0 +1,230 @@
+import assert from 'node:assert/strict'
+import { afterEach, beforeEach, describe, it } from 'node:test'
+import { installBrowser, type FakeBrowser } from './__test__/browser-env.ts'
+import { resetFirstTouchMemory } from './campaign-attribution.ts'
+import { resetLeadTracking } from './lead-tracking.ts'
+import { submitLead, type LeadDraft } from './lead-submission.ts'
+import { requestMetrikaClientId, resetMetrikaClientId } from './metrika-client-id.ts'
+
+const draft: LeadDraft = { name: 'Иван', phone: '+79990000000', contactChannel: 'telegram', website: '' }
+const COUNTER = 113053562
+const g = globalThis as unknown as Record<string, unknown>
+
+type Call = { body: Record<string, unknown> }
+let browser: FakeBrowser
+let calls: Call[]
+let responses: (() => Response | Promise<Response>)[]
+let savedFetch: unknown
+let savedCrypto: PropertyDescriptor | undefined
+let savedEnv: string | undefined
+let logged: unknown[][]
+const savedConsole = { log: console.log, info: console.info, warn: console.warn, error: console.error }
+
+const created = () => new Response(JSON.stringify({ ok: true }), { status: 201 })
+
+function setup(options: Parameters<typeof installBrowser>[0]) {
+  browser = installBrowser(options)
+}
+
+beforeEach(() => {
+  calls = []
+  responses = []
+  logged = []
+  savedEnv = process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID
+  process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID = String(COUNTER)
+  savedFetch = g.fetch
+  savedCrypto = Object.getOwnPropertyDescriptor(globalThis, 'crypto')
+  g.fetch = async (_url: string, init: { body: string }) => {
+    calls.push({ body: JSON.parse(init.body) })
+    const next = responses.shift()
+    return next ? next() : created()
+  }
+  for (const k of ['log', 'info', 'warn', 'error'] as const) console[k] = (...a: unknown[]) => void logged.push(a)
+  resetFirstTouchMemory()
+  resetMetrikaClientId()
+  resetLeadTracking()
+})
+
+afterEach(() => {
+  browser?.restore()
+  g.fetch = savedFetch
+  if (savedCrypto) Object.defineProperty(globalThis, 'crypto', savedCrypto)
+  if (savedEnv === undefined) delete process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID
+  else process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID = savedEnv
+  Object.assign(console, savedConsole)
+})
+
+const goals = () => browser.ymCalls.filter((c) => c[1] === 'reachGoal')
+
+describe('submitLead analytics', () => {
+  it('sends first-touch landing_page while pagePath is the submit page', async () => {
+    setup({ url: 'https://driveset.ru/landing?utm_source=yandex&yclid=77', referrer: 'https://ya.ru/' })
+    const { captureFirstTouch } = await import('./campaign-attribution.ts')
+    captureFirstTouch()
+    browser.navigate('https://driveset.ru/wrapping')
+    const result = await submitLead(draft)
+    assert.equal(result.ok, true)
+    const body = calls[0].body
+    assert.equal(body.landing_page, 'https://driveset.ru/landing?utm_source=yandex&yclid=77')
+    assert.equal(body.pagePath, '/wrapping')
+    assert.equal(body.yclid, '77')
+    assert.equal(body.referrer, 'https://ya.ru/')
+    assert.match(String(body.first_seen_at), /^\d{4}-\d\d-\d\dT/)
+  })
+
+  it('reuses lead_tracking_id on retry after a network error, new one after a confirmed 201', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => { throw new Error('network') })
+    const failed = await submitLead(draft)
+    assert.equal(failed.ok, false)
+    const retry = await submitLead(draft)
+    assert.equal(retry.ok, true)
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    assert.ok(calls[0].body.lead_tracking_id)
+    await submitLead(draft)
+    assert.notEqual(calls[2].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('an edited business draft after a failed attempt gets a new tracking id; the original draft keeps its id on retry', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    await submitLead({ ...draft, phone: '+79991112233' })
+    assert.notEqual(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('key order of the draft does not matter for identity', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    await submitLead({ website: '', contactChannel: 'telegram', phone: draft.phone, name: draft.name })
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('analytics changes alone (first-touch, ClientID) keep the same tracking id on retry', async () => {
+    setup({ url: 'https://driveset.ru/?utm_source=a' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    requestMetrikaClientId(COUNTER)
+    browser.clientIdCallbacks[0]('555')
+    browser.navigate('https://driveset.ru/?yclid=9')
+    resetFirstTouchMemory()
+    browser.store.clear()
+    await submitLead(draft)
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    assert.notEqual(calls[0].body.landing_page, calls[1].body.landing_page)
+    assert.equal(calls[1].body.metrika_client_id, '555')
+  })
+
+  it('simultaneous different submissions never share a tracking id; identical ones do', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    const other = { ...draft, phone: '+79995556677' }
+    await Promise.all([submitLead(draft), submitLead(other), submitLead(other)])
+    const ids = calls.map((c) => c.body.lead_tracking_id)
+    assert.notEqual(ids[0], ids[1])
+    assert.equal(ids[1], ids[2])
+    // finishing one lead must not clear the slot of another that is still current
+    await submitLead(draft)
+    await submitLead(other)
+    assert.notEqual(calls[3].body.lead_tracking_id, calls[4].body.lead_tracking_id)
+  })
+
+  it('A fails, B is submitted, A retried: A keeps its original id; A success leaves B pending', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    const b = { ...draft, phone: '+79991112233' }
+    responses.push(() => { throw new Error('network') }) // A
+    responses.push(() => { throw new Error('network') }) // B
+    await submitLead(draft)
+    await submitLead(b)
+    await submitLead(draft) // A retry, succeeds
+    assert.equal(calls[2].body.lead_tracking_id, calls[0].body.lead_tracking_id)
+    assert.notEqual(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    await submitLead(b) // B retry: its id survived A's success
+    assert.equal(calls[3].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('the same draft on a different pagePath is a different lead; the same pagePath retries with one id', async () => {
+    setup({ url: 'https://driveset.ru/okleyka-avto' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    await submitLead(draft)
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    assert.equal(calls[0].body.pagePath, '/okleyka-avto')
+    responses.push(() => { throw new Error('network') })
+    browser.navigate('https://driveset.ru/polirovka-avto')
+    await submitLead(draft)
+    assert.equal(calls[2].body.pagePath, '/polirovka-avto')
+    assert.notEqual(calls[2].body.lead_tracking_id, calls[0].body.lead_tracking_id)
+  })
+
+  it('a new lead with the same business key after a confirmed 201 gets a new id', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    await submitLead(draft)
+    await submitLead(draft)
+    assert.notEqual(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('keeps the tracking id after a non-201 response', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => new Response(JSON.stringify({ error: 'busy' }), { status: 502 }))
+    await submitLead(draft)
+    await submitLead(draft)
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('omits lead_tracking_id when crypto.randomUUID is unavailable and still submits', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    Object.defineProperty(globalThis, 'crypto', { value: {}, configurable: true })
+    const result = await submitLead(draft)
+    assert.equal(result.ok, true)
+    assert.equal('lead_tracking_id' in calls[0].body, false)
+  })
+
+  it('does not wait for ClientID: no callback → submit still goes out without metrika_client_id', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    requestMetrikaClientId(COUNTER)
+    const result = await submitLead(draft)
+    assert.equal(result.ok, true)
+    assert.equal('metrika_client_id' in calls[0].body, false)
+  })
+
+  it('sends a ClientID that arrived as a string; discards an invalid one', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    requestMetrikaClientId(COUNTER)
+    browser.clientIdCallbacks[0]('1700000000123456789')
+    await submitLead(draft)
+    assert.equal(calls[0].body.metrika_client_id, '1700000000123456789')
+
+    resetMetrikaClientId()
+    requestMetrikaClientId(COUNTER)
+    browser.clientIdCallbacks[browser.clientIdCallbacks.length - 1](1700000000123 as unknown)
+    await submitLead(draft)
+    assert.equal('metrika_client_id' in calls[1].body, false)
+  })
+
+  it('still submits when localStorage throws', async () => {
+    setup({ url: 'https://driveset.ru/?utm_source=x', storage: 'throws' })
+    const result = await submitLead(draft)
+    assert.equal(result.ok, true)
+    assert.equal(calls[0].body.landing_page, 'https://driveset.ru/?utm_source=x')
+  })
+
+  it('fires the lead goal with empty params only after 201, none on failure', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => new Response(JSON.stringify({ error: 'x' }), { status: 400 }))
+    await submitLead(draft)
+    assert.equal(goals().length, 0)
+    await submitLead(draft, 'polirovka_lead_submit')
+    assert.equal(goals().length, 1)
+    assert.deepEqual(goals()[0].slice(2), ['polirovka_lead_submit', {}])
+  })
+
+  it('never writes identifiers to the console or into goal params', async () => {
+    setup({ url: 'https://driveset.ru/?yclid=999' })
+    requestMetrikaClientId(COUNTER)
+    browser.clientIdCallbacks[0]('1234567890')
+    await submitLead(draft)
+    const text = JSON.stringify(logged) + JSON.stringify(browser.ymCalls.filter((c) => c[1] === 'reachGoal'))
+    for (const secret of ['999', '1234567890', String(calls[0].body.lead_tracking_id)]) assert.equal(text.includes(secret), false)
+  })
+})
