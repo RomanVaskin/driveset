@@ -1,6 +1,6 @@
 import { captureFirstTouch, readFirstTouch } from './campaign-attribution.ts'
 import { touchToLeadFields } from './first-touch.ts'
-import { getLeadTrackingId, releaseLeadTrackingId } from './lead-tracking.ts'
+import { getLeadTrackingId, leadDraftKey, releaseLeadTrackingId } from './lead-tracking.ts'
 import { trackMarketingEvent, type MarketingEventName } from './marketing-events.ts'
 import { getMetrikaClientId } from './metrika-client-id.ts'
 
@@ -23,7 +23,7 @@ export type LeadDraft = {
  * (first-touch, tracking id, cached ClientID); nothing is awaited and any failure yields {} — analytics must never
  * cost a lead.
  */
-function collectAnalytics(): Record<string, string> {
+function collectAnalytics(draftKey: string): Record<string, string> {
   let fields: Record<string, string> = {}
   try {
     fields = touchToLeadFields(readFirstTouch() ?? captureFirstTouch())
@@ -31,7 +31,7 @@ function collectAnalytics(): Record<string, string> {
     fields = {}
   }
   try {
-    const trackingId = getLeadTrackingId()
+    const trackingId = getLeadTrackingId(draftKey)
     if (trackingId) fields.lead_tracking_id = trackingId
     const clientId = getMetrikaClientId()
     if (clientId) fields.metrika_client_id = clientId
@@ -46,13 +46,14 @@ export async function submitLead(
   draft: LeadDraft,
   successEvent: Extract<MarketingEventName, 'lead_submit' | 'polirovka_lead_submit' | 'himchistka_lead_submit'> = 'lead_submit',
 ): Promise<{ ok: boolean; error?: string }> {
+  const draftKey = leadDraftKey(draft)
   try {
     const response = await fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...draft,
-        ...collectAnalytics(),
+        ...collectAnalytics(draftKey),
         // page_path: where the form was actually submitted. landing_page (from the first touch) stays the first-touch URL.
         pagePath: window.location.pathname,
       }),
@@ -67,7 +68,7 @@ export async function submitLead(
       return { ok: false, error: 'Не удалось подтвердить отправку заявки.' }
     }
     // A confirmed lead ends this attempt: the next lead gets a new tracking id. Goal parameters carry no identifiers.
-    releaseLeadTrackingId()
+    releaseLeadTrackingId(draftKey)
     trackMarketingEvent(successEvent)
     return { ok: true }
   } catch {

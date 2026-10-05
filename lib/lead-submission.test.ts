@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { afterEach, beforeEach, describe, it } from 'node:test'
 import { installBrowser, type FakeBrowser } from './__test__/browser-env.ts'
 import { resetFirstTouchMemory } from './campaign-attribution.ts'
-import { releaseLeadTrackingId } from './lead-tracking.ts'
+import { resetLeadTracking } from './lead-tracking.ts'
 import { submitLead, type LeadDraft } from './lead-submission.ts'
 import { requestMetrikaClientId, resetMetrikaClientId } from './metrika-client-id.ts'
 
@@ -42,7 +42,7 @@ beforeEach(() => {
   for (const k of ['log', 'info', 'warn', 'error'] as const) console[k] = (...a: unknown[]) => void logged.push(a)
   resetFirstTouchMemory()
   resetMetrikaClientId()
-  releaseLeadTrackingId()
+  resetLeadTracking()
 })
 
 afterEach(() => {
@@ -83,6 +83,50 @@ describe('submitLead analytics', () => {
     assert.ok(calls[0].body.lead_tracking_id)
     await submitLead(draft)
     assert.notEqual(calls[2].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('an edited business draft after a failed attempt gets a new tracking id; the original draft keeps its id on retry', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    await submitLead({ ...draft, phone: '+79991112233' })
+    assert.notEqual(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('key order of the draft does not matter for identity', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    await submitLead({ website: '', contactChannel: 'telegram', phone: draft.phone, name: draft.name })
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+  })
+
+  it('analytics changes alone (first-touch, ClientID) keep the same tracking id on retry', async () => {
+    setup({ url: 'https://driveset.ru/?utm_source=a' })
+    responses.push(() => { throw new Error('network') })
+    await submitLead(draft)
+    requestMetrikaClientId(COUNTER)
+    browser.clientIdCallbacks[0]('555')
+    browser.navigate('https://driveset.ru/other?yclid=9')
+    resetFirstTouchMemory()
+    browser.store.clear()
+    await submitLead(draft)
+    assert.equal(calls[0].body.lead_tracking_id, calls[1].body.lead_tracking_id)
+    assert.notEqual(calls[0].body.landing_page, calls[1].body.landing_page)
+    assert.equal(calls[1].body.metrika_client_id, '555')
+  })
+
+  it('simultaneous different submissions never share a tracking id; identical ones do', async () => {
+    setup({ url: 'https://driveset.ru/' })
+    const other = { ...draft, phone: '+79995556677' }
+    await Promise.all([submitLead(draft), submitLead(other), submitLead(other)])
+    const ids = calls.map((c) => c.body.lead_tracking_id)
+    assert.notEqual(ids[0], ids[1])
+    assert.equal(ids[1], ids[2])
+    // finishing one lead must not clear the slot of another that is still current
+    await submitLead(draft)
+    await submitLead(other)
+    assert.notEqual(calls[3].body.lead_tracking_id, calls[4].body.lead_tracking_id)
   })
 
   it('keeps the tracking id after a non-201 response', async () => {
