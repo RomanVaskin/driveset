@@ -1,4 +1,4 @@
-import { quizPackageOptions } from '@/lib/wrapping-config'
+import { quizPackageOptions } from './wrapping-config.ts'
 
 export type MarketingEventName =
   | 'quiz_start'
@@ -43,19 +43,24 @@ declare global {
 /**
  * Provider-neutral event boundary. Until a public Yandex Metrika counter id is
  * configured, this function intentionally sends nothing outside the browser.
+ * Returns true when the goal was handed to Metrika (queued or sent).
  */
-export function trackMarketingEvent(name: MarketingEventName, payload: MarketingEventPayload = {}) {
-  if (typeof window === 'undefined') return
+export function trackMarketingEvent(name: MarketingEventName, payload: MarketingEventPayload = {}, callback?: () => void): boolean {
+  if (typeof window === 'undefined') return false
   const counterId = Number(process.env.NEXT_PUBLIC_YANDEX_METRIKA_ID)
-  if (!Number.isInteger(counterId) || counterId <= 0 || typeof window.ym !== 'function') return
+  if (!Number.isInteger(counterId) || counterId <= 0 || typeof window.ym !== 'function') return false
   const safePayload: MarketingEventPayload = {}
   if (name === 'package_selected' && quizPackageOptions.some((item) => item.id === payload.package)) {
     safePayload.package = payload.package
   }
   if (name in contactChannels) safePayload.channel = contactChannels[name as keyof typeof contactChannels]
   try {
-    window.ym(counterId, 'reachGoal', name, safePayload)
+    // The optional callback fires once Metrika has sent the goal (used before same-tab navigation).
+    if (callback) window.ym(counterId, 'reachGoal', name, safePayload, callback)
+    else window.ym(counterId, 'reachGoal', name, safePayload)
+    return true
   } catch {
     // Analytics must never interrupt navigation or the quiz.
+    return false
   }
 }
