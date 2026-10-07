@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { PolishingQuiz } from '@/components/polishing/quiz'
-import { PolishingContacts, PolishingHero, PolishingPrices, PolishingProblems } from '@/components/polishing/sections'
+import { PolishingContacts, PolishingHero, PolishingPrices, PolishingProblems, PolishingRelated, PolishingTypes } from '@/components/polishing/sections'
 import { PortfolioWorks } from '@/components/landing/portfolio-works'
 import { WrappingBenefits } from '@/components/wrapping/benefits'
 import { WrappingFaq } from '@/components/wrapping/faq'
@@ -11,8 +11,8 @@ import { WrappingProcess } from '@/components/wrapping/process'
 import { polishingBenefits, polishingFaq, polishingNav, polishingProcess } from '@/lib/polishing-config'
 import { site } from '@/lib/site-config'
 
-const title = 'Полировка автомобиля в Москве'
-const description = 'Полировка кузова автомобиля в DriveSet, Москва: вернём блеск и глубину цвета, уберём мелкие царапины и следы эксплуатации. Бесплатный осмотр, запись без предоплаты.'
+const title = 'Полировка кузова и фар в Москве: цены'
+const description = 'Полировка кузова и фар автомобиля в DriveSet, Москва: лёгкая, восстановительная и глубокая абразивная полировка, полировка элемента. Цены от 2 500 ₽, бесплатный осмотр, запись без предоплаты.'
 
 export const metadata: Metadata = {
   title,
@@ -33,11 +33,11 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'Service',
-      name: title,
+      name: 'Полировка кузова и фар автомобиля в Москве',
       description,
       url: `${site.url}/polirovka-avto`,
       areaServed: site.city,
-      serviceType: 'Полировка автомобиля',
+      serviceType: 'Полировка кузова и фар автомобиля',
       provider: {
         '@type': 'AutoDetailing',
         name: site.name,
@@ -70,8 +70,10 @@ export default function PolishingPage() {
         <PolishingHero />
         <PolishingQuiz />
         <PolishingProblems />
+        <PolishingTypes />
         <PortfolioWorks category="polishing" description="Фото и видео автомобилей после полировки в DriveSet." itemLabel="полировке" />
         <PolishingPrices />
+        <PolishingRelated />
         <WrappingProcess steps={polishingProcess} title="Как проходит работа" />
         <WrappingBenefits items={polishingBenefits} title="Почему выбирают DriveSet" />
         <WrappingFaq items={polishingFaq} />
