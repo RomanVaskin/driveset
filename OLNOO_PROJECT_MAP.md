@@ -10,6 +10,7 @@ Production-карта файлов. Обновлять при любом изм�
 | `app/page.tsx` | Сборка лендинга + JSON-LD (`AutoDetailing`). Один `<h1>` живёт в Hero. |
 | `app/globals.css` | Tailwind v4, дизайн-токены премиальной тёмной темы. |
 | `app/sitemap.ts` | `/sitemap.xml`: `/`, `/okleyka-avto`, `/polirovka-avto`, `/himchistka-avto` (без `/plan`). |
+| `app/robots.ts` | `/robots.txt`: `User-Agent: *`, `Allow: /`, `Sitemap: https://driveset.ru/sitemap.xml`; без `Disallow` (`/plan` закрыт через `noindex`, а `Disallow` мешал бы краулеру его увидеть). |
 | `lib/site-config.ts` | **Единый источник контента**: бренд, подтверждённые контакты и часы работы, навигация, услуги, trust-метрики, процесс, настройки/fallback галереи, ссылка на Яндекс Карту. |
 | `lib/portfolio-manifest.ts` | Типы и клиентская валидация внешнего manifest галереи. Разрешает только известные категории и URL внутри `/media/portfolio-web/`; `loadPortfolioManifest()` — общий браузерный запрос manifest (используется `/polirovka-avto`). |
 | `lib/wrapping-config.ts` | Контент `/okleyka-avto`: пакеты, цены, подарки, плёнки, преимущества, демонстрационный пример трекера, процесс и FAQ. |
@@ -50,8 +51,8 @@ Production-карта файлов. Обновлять при любом изм�
 ## Внутренняя страница `/plan`
 
 Стратегия развития (продвижение → автоматизация → AI → этапы → KPI).
-`noindex, nofollow`, canonical `/plan`, в sitemap не входит (sitemap.xml и
-robots.txt в проекте отсутствуют). Лендинговые компоненты не затронуты.
+`noindex, nofollow`, canonical `/plan`, в sitemap не входит (`app/sitemap.ts`; `app/robots.ts` отдаёт `Allow: /` без
+`Disallow`, чтобы краулер видел `noindex`). Лендинговые компоненты не затронуты.
 
 | Файл | Роль |
 | --- | --- |

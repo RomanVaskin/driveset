@@ -31,9 +31,9 @@ media и квиз). `/api/lead` — единственное backend-исклю�
    «контент отдельно от разметки»). Свой хедер/футер, потому что лендинговый
    хедер использует якоря главной. Закрыта через `metadata.robots`
    (`noindex, nofollow`); canonical переопределён на `/plan` (иначе наследуется
-   от layout и указывает на главную). Sitemap в проекте нет, поэтому исключать
-   нечего; `Disallow` в robots.txt намеренно не добавляем — он мешает краулеру
-   увидеть `noindex`. Страница описывает будущие функции, но не реализует их.
+   от layout и указывает на главную). В sitemap (`app/sitemap.ts`) страница не
+   входит; `app/robots.ts` отдаёт `Allow: /` и ссылку на sitemap, `Disallow`
+   намеренно не добавляем — он мешает краулеру увидеть `noindex`. Страница описывает будущие функции, но не реализует их.
 
 7. **Hero-видео.** Фон hero — обычный `<video autoPlay muted loop playsInline>`
    (без JS, hero остаётся server-компонентом) с внешним URL
@@ -257,6 +257,7 @@ production-факты (сервер, путь, порт) — в `OLNOO_PROJECT_M
 - `metadata` + Open Graph в `layout.tsx`; canonical на `driveset.ru`.
 - JSON-LD `AutoDetailing` в `app/page.tsx`.
 - `app/sitemap.ts` → `/sitemap.xml` с публичными страницами (`/`, `/okleyka-avto`, `/polirovka-avto`, `/himchistka-avto`).
+- `app/robots.ts` → `/robots.txt`: публичный сайт открыт (`Allow: /`), ссылка на `/sitemap.xml`, без `Disallow` (обязательный technical SEO минимум).
 - Все изображения с осмысленным `alt`, `lang="ru"`.
 
 ## Точки расширения (этап 2+)
