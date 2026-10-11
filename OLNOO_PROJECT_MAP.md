@@ -200,6 +200,7 @@ landing-компонентах; `/okleyka-avto` и `/polirovka-avto` не мен
 | --- | --- |
 | `next.config.mjs` | Images unoptimized + security headers. |
 | `.env.production` | Публичный ID реального счётчика Метрики через `NEXT_PUBLIC_YANDEX_METRIKA_ID`; Next.js встраивает значение при production build. |
+| `.env.example` | Документирует имена переменных (не значения): `NEXT_PUBLIC_YANDEX_METRIKA_ID`, `OLNOO_CRM_URL`, `OLNOO_CRM_API_KEY`. |
 | Server-only env | `OLNOO_CRM_URL` (база `https://admin.olnoo.com`) и `OLNOO_CRM_API_KEY` для `/api/lead`; значения не должны попадать в `NEXT_PUBLIC_*` или Git. |
 
 ## Деплой (production, Beget)
