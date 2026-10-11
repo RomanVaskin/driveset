@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { buildCrmLeadBody, crmService, type CrmLeadInput } from './lead-crm-payload.ts'
+import { buildCrmLeadBody, crmChannel, crmService, type CrmLeadInput } from './lead-crm-payload.ts'
 
 const UUID = '0b6f4c1e-5d4a-4f0e-9a3b-7c2d1e8f9a10'
 const input: CrmLeadInput = {
@@ -10,7 +10,7 @@ const input: CrmLeadInput = {
 
 test('a request without any new field produces exactly the body the CRM got before A2', () => {
   assert.deepEqual(buildCrmLeadBody(input, {}), {
-    project: 'driveset', name: 'Заявка DriveSet', phone: '+79990001122', source: 'Ads', service: 'okleyka-avto', pagePath: '/okleyka-avto',
+    project: 'driveset', name: 'Заявка DriveSet', phone: '+79990001122', source: 'Ads', service: 'okleyka-avto', channel: 'Quiz', pagePath: '/okleyka-avto',
     utm_source: 'yandex', utm_medium: 'cpc', utm_campaign: '714796268', utm_content: '1922', utm_term: 'ppf',
     message: 'Канал: phone\nАвтомобиль: BMW X5 2021\nУслуга: PPF',
   })
@@ -44,4 +44,17 @@ test('service mapping is unchanged', () => {
   assert.equal(crmService({ pagePath: '/himchistka-avto', package: '' }), 'himchistka-avto')
   assert.equal(crmService({ pagePath: '/', package: 'nothing' }), 'Other')
   assert.equal(crmService({ pagePath: '/plan', package: '' }), '')
+})
+
+test('channel: the home page is Form; the three quiz landing pages are Quiz; an unknown page is left unset', () => {
+  assert.equal(crmChannel({ pagePath: '/' }), 'Form')
+  assert.equal(crmChannel({ pagePath: '/okleyka-avto' }), 'Quiz')
+  assert.equal(crmChannel({ pagePath: '/polirovka-avto' }), 'Quiz')
+  assert.equal(crmChannel({ pagePath: '/himchistka-avto' }), 'Quiz')
+  assert.equal(crmChannel({ pagePath: '/plan' }), undefined)
+})
+
+test('channel is omitted from the CRM body for an unrecognized pagePath, never guessed', () => {
+  const body = buildCrmLeadBody({ ...input, pagePath: '/plan' }, {}) as Record<string, unknown>
+  assert.equal('channel' in body, false)
 })

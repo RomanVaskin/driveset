@@ -60,7 +60,24 @@ export function crmService(input: Pick<CrmLeadInput, 'pagePath' | 'package'>) {
   return (choice && serviceByHomeChoice[choice.id]) || 'Other'
 }
 
+/**
+ * Channel (Quiz vs Form), derived from the same validated `pagePath` `crmService()` already
+ * uses — never guessed from anything else. The home page (`/`) has a simple select-a-service
+ * form, not a quiz; each of the three landing pages runs the multi-step quiz (see
+ * OLNOO_ARCHITECTURE.md's "Квиз и отправка лида"/"Посадочная полировки"/"...химчистки" sections).
+ * Any other `pagePath` has no known submit flow today, so `channel` is left unset rather than
+ * guessed between the two — matches `crmService`'s own `''` fallback for an unrecognized page.
+ */
+const QUIZ_PAGE_PATHS = new Set(Object.keys(serviceByPage))
+
+export function crmChannel(input: Pick<CrmLeadInput, 'pagePath'>): string | undefined {
+  if (input.pagePath === '/') return 'Form'
+  if (QUIZ_PAGE_PATHS.has(input.pagePath)) return 'Quiz'
+  return undefined
+}
+
 export function buildCrmLeadBody(input: CrmLeadInput, analytics: LeadAnalytics) {
+  const channel = crmChannel(input)
   return {
     project: 'driveset',
     // OLNOO CRM requires a non-empty name: a phone-only lead gets a technical title, not a fake person name.
@@ -68,6 +85,7 @@ export function buildCrmLeadBody(input: CrmLeadInput, analytics: LeadAnalytics) 
     phone: input.phone,
     source: 'Ads',
     service: crmService(input),
+    ...(channel ? { channel } : {}),
     // pagePath = the page the form was submitted on; pageUrl (CRM landing_page) = the first-touch landing URL.
     pagePath: input.pagePath,
     utm_source: input.utm_source,
